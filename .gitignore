@@ -1,53 +1,49 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# ---- Dependencies (restored via: npm install) ----
 node_modules/
 
-# Expo
+# ---- Expo / dev caches (regenerable) ----
 .expo/
 dist/
+dist-web/
 web-build/
 expo-env.d.ts
+.metro-health-check*
 
-# Native
+# ---- Generated native folders & secrets ----
 .kotlin/
-*.orig.*
+/ios
+/android
+google-services.json
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
-
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# local build scratch logs
-build-log.txt
-build-info.json
-eas-build-upload*.log
-
-# macOS
-.DS_Store
 *.pem
-
-# local env files
+.env
 .env*.local
 
-# typescript
-*.tsbuildinfo
-
-# generated native folders
-/ios
-/android
-
-# unpushable / regenerable (size limits)
+# ---- Build artifacts (APKs are stored on EAS) ----
 *.apk
-eas-build.log
-eas-preview-build.log
-eas-build-upload.log
-eas-build-upload2.log
+*.aab
+*.log
+build-log.txt
+build-info.json
+
+# ---- Scratch / test output from local runs ----
+test-results/
+design/
+explore-gui*.mjs
+test_*.js
+playwright_*.js
+token-tracker-dashboard.html
+/*.png
+/*.jpg
+/*.jpeg
+
+# ---- Local tooling ----
+.freebuff/
+
+# ---- OS noise ----
+.DS_Store
+Thumbs.db
