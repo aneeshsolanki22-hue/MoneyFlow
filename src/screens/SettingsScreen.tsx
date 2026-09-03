@@ -62,7 +62,7 @@ export default function SettingsScreen({
   const { currency, setCurrencyByCode } = useCurrency();
   const { customCategories, deleteCustomCategory } = useCategories();
 
-  const { webClientId } = getGoogleClientIds();
+  const { webClientId, androidClientId } = getGoogleClientIds();
   const configured = webClientId.length > 0;
 
   const [loadingGoogle, setLoadingGoogle] = useState(false);
@@ -101,6 +101,7 @@ export default function SettingsScreen({
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       GoogleSignin.configure({
         webClientId,
+        ...(androidClientId ? { androidClientId } : {}),
         scopes: ['profile', 'email', DRIVE_SCOPE],
       });
       const result = await GoogleSignin.signIn();
@@ -109,12 +110,20 @@ export default function SettingsScreen({
       if (!tokens.accessToken) throw new Error('No access token returned');
       const email = result.data.user.email || 'Google account';
       onSignedIn(tokens.accessToken, email);
-    } catch {
-      toast('Sign-in failed, please try again');
+    } catch (err) {
+      const code = (err as { code?: string | number } | undefined)?.code;
+      const message = (err as { message?: string } | undefined)?.message;
+      toast(
+        code
+          ? `Sign-in failed (${code})`
+          : message
+            ? `Sign-in failed: ${message}`
+            : 'Sign-in failed, please try again',
+      );
     } finally {
       setLoadingGoogle(false);
     }
-  }, [connected, configured, webClientId, onSignedIn, onSignedOut, toast]);
+  }, [connected, configured, webClientId, androidClientId, onSignedIn, onSignedOut, toast]);
 
   const handleBackupPress = async () => {
     if (Platform.OS === 'android') Vibration.vibrate(15);

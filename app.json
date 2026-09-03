@@ -70,7 +70,8 @@
     ],
     "extra": {
       "googleClientIds": {
-        "webClientId": "510345420972-0nn2i4nr2acve0etqnda0cf5rjetf8sv.apps.googleusercontent.com"
+        "webClientId": "510345420972-0nn2i4nr2acve0etqnda0cf5rjetf8sv.apps.googleusercontent.com",
+        "androidClientId": "510345420972-4ovirqobh4unkmv1h1rh7elibihvhs62.apps.googleusercontent.com"
       },
       "eas": {
         "projectId": "7463ad7f-afef-4842-86d7-53a93ce07928"

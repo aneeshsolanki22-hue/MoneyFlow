@@ -14,6 +14,14 @@ Your Google OAuth **Web Client ID**:
 
 This goes in `app.json` under `expo.extra.googleClientIds.webClientId`.
 
+Your Google OAuth **Android Client ID** (registered for package `com.toukirsolanki.moneyflow`, SHA-1 `61:E5:ED:E0:1B:11:5D:D7:E7:4A:3B:03:8F:F0:AF:47:18:9F:50:BD`):
+
+```
+510345420972-4ovirqobh4unkmv1h1rh7elibihvhs62.apps.googleusercontent.com
+```
+
+This goes in `app.json` under `expo.extra.googleClientIds.androidClientId`.
+
 ---
 
 ## 2. Install Packages
