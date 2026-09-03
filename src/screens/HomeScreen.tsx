@@ -282,16 +282,19 @@ export default function HomeScreen({ user }: Props) {
       {/* 1. HOME TAB */}
       {currentTab === 'home' && (
         <View style={styles.homeContainer}>
-          {/* TOP HERO GRAINY GRADIENT SECTION */}
+          {/* FULL-SCREEN DESIGN GRADIENT (expnese tracker.pen: h1 frame) — no GPU shader.
+              Exact 2-stop per design: #00d4ff (position 0, top) → #020024 (position 1, bottom).
+              Spans the whole home background — behind the header AND behind the transaction list —
+              so the light sheet's rounded corners sit on a continuous fade, not a hard color edge. */}
+          <LinearGradient
+            style={StyleSheet.absoluteFill}
+            colors={['#00d4ff', '#020024']}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+          />
+
+          {/* HEADER HERO (transparent, over the gradient) */}
           <View style={[styles.headerHero, { paddingTop: insets.top + 10 }]}>
-            {/* Static design gradient (expnese tracker.pen: h1 / h1 dark) — no GPU shader.
-                Reversed per request: #020024 (navy, top) → #00d4ff (cyan, bottom). */}
-            <LinearGradient
-              style={StyleSheet.absoluteFill}
-              colors={['#020024', '#00d4ff']}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-            />
             {/* HEADER BAR WITH MONTH PILL */}
             <View style={styles.headerBar}>
               <View style={styles.monthPill}>
@@ -506,7 +509,6 @@ const styles = StyleSheet.create({
   },
   homeContainer: {
     flex: 1,
-    backgroundColor: '#011E30',
   },
   headerHero: {
     paddingHorizontal: 18,
@@ -615,7 +617,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     paddingHorizontal: 20,
     paddingTop: 24,
-    marginTop: -12,
   },
   sectionHeader: {
     flexDirection: 'row',
