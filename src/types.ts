@@ -10,7 +10,6 @@ export interface Transaction {
 }
 
 export interface UserProfile {
-  name: string;
   onboarded: boolean;
 }
 

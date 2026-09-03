@@ -19,7 +19,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { NavigationBar } from 'expo-navigation-bar';
 import { Colors } from './src/theme';
 import type { UserProfile } from './src/types';
-import { loadUser, saveUser } from './src/utils/storage';
+import { loadUser, saveBackup, saveUser } from './src/utils/storage';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import { ToastProvider } from './src/components/Toast';
@@ -60,12 +60,21 @@ export default function App() {
     }
   }, [fontsLoaded, stage]);
 
-  const handleOnboard = useCallback((name: string) => {
-    const u: UserProfile = { name, onboarded: true };
-    saveUser(u);
-    setUser(u);
-    setStage('home');
-  }, []);
+  const [googleCred, setGoogleCred] = useState<{ token: string; email: string } | null>(null);
+
+  const handleOnboard = useCallback(
+    (google?: { token: string; email: string }) => {
+      if (google) {
+        saveBackup({ googleConnected: true, googleEmail: google.email, lastBackup: null });
+        setGoogleCred(google);
+      }
+      const u: UserProfile = { onboarded: true };
+      saveUser(u);
+      setUser(u);
+      setStage('home');
+    },
+    [],
+  );
 
   if (!fontsLoaded || stage === 'boot') return null;
 
@@ -101,7 +110,7 @@ export default function App() {
                       entering={FadeIn.duration(450)}
                       style={StyleSheet.absoluteFill}
                     >
-                      <HomeScreen user={user} />
+                      <HomeScreen user={user} initialGoogleToken={googleCred?.token ?? null} />
                     </Animated.View>
                   )}
                 </View>

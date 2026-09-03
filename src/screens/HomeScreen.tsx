@@ -44,6 +44,7 @@ import SettingsScreen from './SettingsScreen';
 
 interface Props {
   user: UserProfile;
+  initialGoogleToken?: string | null;
 }
 
 const MONTH_NAMES_FULL = [
@@ -51,7 +52,7 @@ const MONTH_NAMES_FULL = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-export default function HomeScreen({ user }: Props) {
+export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
   const insets = useSafeAreaInsets();
   const toast = useToast();
   const { theme, colors } = useTheme();
@@ -71,7 +72,7 @@ export default function HomeScreen({ user }: Props) {
     googleEmail: null,
     lastBackup: null,
   });
-  const [googleToken, setGoogleToken] = useState<string | null>(null);
+  const [googleToken, setGoogleToken] = useState<string | null>(initialGoogleToken);
   const [listAnimated, setListAnimated] = useState(false);
 
   useEffect(() => {
