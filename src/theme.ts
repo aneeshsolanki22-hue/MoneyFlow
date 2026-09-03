@@ -3,10 +3,10 @@ export const HOME_GRADIENTS = {
   ocean: ['#020024', '#00d4ff'],
   /** dark red top → orange bottom (brand look) */
   ember: ['#9e0f0d', '#e15c15'],
-  /** “Under Blue Green” (uigradients.com): deep navy → sea teal → green → lime */
-  lagoon: ['#051937', '#004d7a', '#008793', '#00bf72', '#a8eb12'],
-  /** “eXpresso” (uigradients.com): magenta purple → deep purple */
-  expresso: ['#ad5389', '#3c1053'],
+  /** “Under Blue Green” (uigradients.com), reversed: lime → green → teal → deep navy */
+  lagoon: ['#a8eb12', '#00bf72', '#008793', '#004d7a', '#051937'],
+  /** “eXpresso” (uigradients.com), reversed: deep purple → magenta */
+  expresso: ['#3c1053', '#ad5389'],
 } as const;
 
 export const DarkColors = {
