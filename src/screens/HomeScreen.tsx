@@ -284,10 +284,11 @@ export default function HomeScreen({ user }: Props) {
         <View style={styles.homeContainer}>
           {/* TOP HERO GRAINY GRADIENT SECTION */}
           <View style={[styles.headerHero, { paddingTop: insets.top + 10 }]}>
-            {/* Static design gradient (expnese tracker.pen: h1/h1 dark) — no GPU shader */}
+            {/* Static design gradient (expnese tracker.pen: h1 / h1 dark) — no GPU shader.
+                Exact 2-stop from the design: #00d4ff (position 0) → #020024 (position 1). */}
             <LinearGradient
               style={StyleSheet.absoluteFill}
-              colors={['#020024', '#00d4ff']}
+              colors={['#00d4ff', '#020024']}
               start={{ x: 0.5, y: 0 }}
               end={{ x: 0.5, y: 1 }}
             />
@@ -610,8 +611,8 @@ const styles = StyleSheet.create({
   sheetContainer: {
     flex: 1,
     backgroundColor: '#F0F5FB',
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     paddingHorizontal: 20,
     paddingTop: 24,
     marginTop: -12,
