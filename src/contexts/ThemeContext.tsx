@@ -1,17 +1,23 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { DarkColors, LightColors, type ThemeColors } from "../theme";
-import { loadTheme, saveTheme } from "../utils/storage";
+import { loadGradient, loadTheme, saveGradient, saveTheme } from "../utils/storage";
+import type { GradientVariant } from "../types";
 
 interface ThemeContextValue {
   theme: "dark" | "light";
   colors: ThemeColors;
   toggleTheme: () => void;
+  /** Home-screen gradient look — a separate preference, independent of the theme. */
+  gradient: GradientVariant;
+  setGradient: (variant: GradientVariant) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: "dark",
   colors: DarkColors,
   toggleTheme: () => {},
+  gradient: "ocean",
+  setGradient: () => {},
 });
 
 export function useTheme() {
@@ -20,11 +26,15 @@ export function useTheme() {
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [gradient, setGradientState] = useState<GradientVariant>('ocean');
 
-  // Load persisted preference on mount.
+  // Load persisted preferences on mount.
   useEffect(() => {
     loadTheme().then((t) => {
       if (t) setTheme(t);
+    });
+    loadGradient().then((g) => {
+      if (g) setGradientState(g);
     });
   }, []);
 
@@ -36,10 +46,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setGradient = useCallback((variant: GradientVariant) => {
+    setGradientState(variant);
+    saveGradient(variant);
+  }, []);
+
   const colors = theme === "dark" ? DarkColors : LightColors;
 
   return (
-    <ThemeContext.Provider value={{ theme, colors, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, colors, toggleTheme, gradient, setGradient }}>
       {children}
     </ThemeContext.Provider>
   );

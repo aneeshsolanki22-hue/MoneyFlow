@@ -26,13 +26,15 @@ import {
   Coins,
   Mail,
   Moon,
+  Palette,
   Trash2,
 } from 'lucide-react-native';
 import ReacticxSwitch from '../components/ReacticxSwitch';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Fonts } from '../theme';
+import { Colors, Fonts, HOME_GRADIENTS } from '../theme';
 import { useTheme } from '../contexts/ThemeContext';
+import type { GradientVariant } from '../types';
 import { CURRENCIES, useCurrency } from '../contexts/CurrencyContext';
 import { useCategories } from '../contexts/CategoryContext';
 import type { BackupState } from '../types';
@@ -58,7 +60,7 @@ export default function SettingsScreen({
 }: Props) {
   const insets = useSafeAreaInsets();
   const toast = useToast();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, gradient, setGradient } = useTheme();
   const { currency, setCurrencyByCode } = useCurrency();
   const { customCategories, deleteCustomCategory } = useCategories();
 
@@ -353,6 +355,47 @@ export default function SettingsScreen({
               trackInactiveColor="#3A3A3C"
             />
           </View>
+
+          <View style={styles.separator} />
+
+          {/* HOME GRADIENT — an independent look; does NOT change the dark/light theme */}
+          <View style={styles.prefRow}>
+            <View style={styles.prefLeft}>
+              <Palette size={20} color="#FFFFFF" strokeWidth={2} />
+              <View style={styles.prefTextGroup}>
+                <Text style={styles.prefTitle}>Home gradient</Text>
+                <Text style={styles.prefSub}>Separate from dark mode</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.gradientOptions}>
+            {(Object.keys(HOME_GRADIENTS) as GradientVariant[]).map((id) => {
+              const selected = gradient === id;
+              return (
+                <Pressable
+                  key={id}
+                  onPress={() => setGradient(id)}
+                  hitSlop={6}
+                  style={[
+                    styles.gradientBall,
+                    selected && styles.gradientBallSelected,
+                  ]}
+                >
+                  <LinearGradient
+                    colors={HOME_GRADIENTS[id]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={StyleSheet.absoluteFill}
+                  />
+                  {selected && (
+                    <View style={styles.gradientBallCheck}>
+                      <Check size={11} color="#0A0A0A" strokeWidth={3.2} />
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
         </View>
 
         {/* CUSTOM CATEGORIES (IF ANY) */}
@@ -577,6 +620,39 @@ const styles = StyleSheet.create({
   },
   currencyChipTextSelected: {
     color: '#0A0A0A',
+  },
+  gradientOptions: {
+    flexDirection: 'row',
+    gap: 14,
+    paddingBottom: 16,
+  },
+  gradientBall: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 2.5,
+    borderColor: 'rgba(255,255,255,0.25)',
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  gradientBallSelected: {
+    borderColor: '#FFFFFF',
+    transform: [{ scale: 1.08 }],
+  },
+  gradientBallCheck: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   categoryDot: {
     width: 14,

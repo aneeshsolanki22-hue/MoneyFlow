@@ -21,7 +21,7 @@ import {
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { Colors, Fonts } from '../theme';
+import { Colors, Fonts, HOME_GRADIENTS } from '../theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCategories } from '../contexts/CategoryContext';
@@ -55,7 +55,7 @@ const MONTH_NAMES_FULL = [
 export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
   const insets = useSafeAreaInsets();
   const toast = useToast();
-  const { theme, colors } = useTheme();
+  const { theme, colors, gradient } = useTheme();
   const isDark = theme === 'dark';
   const { currency, formatAmount, formatValue, setCurrencyByCode } = useCurrency();
   const { customCategories, setCustomCategoriesList } = useCategories();
@@ -283,13 +283,12 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
       {/* 1. HOME TAB */}
       {currentTab === 'home' && (
         <View style={styles.homeContainer}>
-          {/* FULL-SCREEN GRADIENT — no GPU shader. 2-stop, reversed per request:
-              #020024 (navy, top) → #00d4ff (cyan, bottom).
-              Spans the whole home background — behind the header AND behind the transaction list —
-              so the light sheet's rounded corners sit on a continuous fade, not a hard color edge. */}
+          {/* FULL-SCREEN GRADIENT — no GPU shader. Colors come from the independent
+              “Home gradient” setting (ocean/sky); it does NOT change with dark mode.
+              Spans the whole home background so the sheet corners rest on a continuous fade. */}
           <LinearGradient
             style={StyleSheet.absoluteFill}
-            colors={['#020024', '#00d4ff']}
+            colors={HOME_GRADIENTS[gradient]}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
           />

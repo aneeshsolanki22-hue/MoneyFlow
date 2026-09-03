@@ -1,3 +1,10 @@
+export const HOME_GRADIENTS = {
+  /** navy top → cyan bottom glow (default look) */
+  ocean: ['#020024', '#00d4ff'],
+  /** dark red top → orange bottom (brand look) */
+  ember: ['#9e0f0d', '#e15c15'],
+} as const;
+
 export const DarkColors = {
   bg: '#000000',
   bgSolid: '#000000',

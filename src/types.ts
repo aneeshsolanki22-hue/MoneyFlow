@@ -13,6 +13,9 @@ export interface UserProfile {
   onboarded: boolean;
 }
 
+/** Home-screen gradient look. Independent of the dark/light theme. */
+export type GradientVariant = 'ocean' | 'ember';
+
 export interface BackupState {
   googleConnected: boolean;
   googleEmail: string | null;

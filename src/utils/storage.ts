@@ -6,6 +6,7 @@ const KEYS = {
   user: '@mfb/user/v1',
   backup: '@mfb/backup/v1',
   theme: '@mfb/theme/v1',
+  gradient: '@mfb/gradient/v1',
   currency: '@mfb/currency/v1',
   customCategories: '@mfb/custom_categories/v1',
 };
@@ -83,6 +84,27 @@ export const loadTheme = loadSavedTheme;
 export async function saveTheme(theme: 'light' | 'dark'): Promise<void> {
   try {
     await AsyncStorage.setItem(KEYS.theme, theme);
+  } catch {
+    // ignore
+  }
+}
+
+const GRADIENT_VARIANTS: ReadonlyArray<'ocean' | 'ember'> = ['ocean', 'ember'];
+
+export async function loadGradient(): Promise<'ocean' | 'ember' | null> {
+  try {
+    const raw = await AsyncStorage.getItem(KEYS.gradient);
+    return (GRADIENT_VARIANTS as readonly string[]).includes(raw ?? '')
+      ? (raw as 'ocean' | 'ember')
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveGradient(variant: 'ocean' | 'ember'): Promise<void> {
+  try {
+    await AsyncStorage.setItem(KEYS.gradient, variant);
   } catch {
     // ignore
   }
