@@ -282,13 +282,13 @@ export default function HomeScreen({ user }: Props) {
       {/* 1. HOME TAB */}
       {currentTab === 'home' && (
         <View style={styles.homeContainer}>
-          {/* FULL-SCREEN DESIGN GRADIENT (expnese tracker.pen: h1 frame) — no GPU shader.
-              Exact 2-stop per design: #00d4ff (position 0, top) → #020024 (position 1, bottom).
+          {/* FULL-SCREEN GRADIENT — no GPU shader. 2-stop, reversed per request:
+              #020024 (navy, top) → #00d4ff (cyan, bottom).
               Spans the whole home background — behind the header AND behind the transaction list —
               so the light sheet's rounded corners sit on a continuous fade, not a hard color edge. */}
           <LinearGradient
             style={StyleSheet.absoluteFill}
-            colors={['#00d4ff', '#020024']}
+            colors={['#020024', '#00d4ff']}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
           />
