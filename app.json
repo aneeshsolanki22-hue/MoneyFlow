@@ -59,7 +59,16 @@
         }
       ],
       "expo-mlkit-ocr",
-      "expo-build-properties",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": [
+              "https://maven-central.storage-download.googleapis.com/maven2"
+            ]
+          }
+        }
+      ],
       [
         "expo-navigation-bar",
         {
