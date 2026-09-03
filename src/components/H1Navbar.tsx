@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Platform, Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
 import { BarChart2, Home, Plus, Settings } from 'lucide-react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, {
+  SlideInLeft,
+  SlideInRight,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Fonts } from '../theme';
 import LiquidGlass from './LiquidGlass';
@@ -14,9 +20,22 @@ interface Props {
   onAddPress: () => void;
 }
 
+const TAB_INDEX: Record<TabType, number> = { home: 0, analytics: 1, settings: 2 };
+
+/** Slide the active pill in from the direction of the previously selected tab. */
+const enteringFor = (from: TabType | null, to: TabType) => {
+  if (from === null) return undefined;
+  const dir = TAB_INDEX[to] > TAB_INDEX[from] ? 1 : -1;
+  const base = dir === 1 ? SlideInRight : SlideInLeft;
+  return base.springify().damping(16).stiffness(170);
+};
+
 export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) {
   const insets = useSafeAreaInsets();
   const fabScale = useSharedValue(1);
+  const prevTabRef = useRef<TabType | null>(null);
+  const fromTab = prevTabRef.current;
+  prevTabRef.current = activeTab;
 
   const fabAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: fabScale.value }],
@@ -33,6 +52,15 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
     onTabChange(tab);
   };
 
+  const renderActivePill = (tab: TabType, icon: React.ReactNode, label: string) => (
+    <Animated.View key={tab} entering={enteringFor(fromTab, tab)}>
+      <LiquidGlass borderRadius={20} tint="light" style={styles.activePill}>
+        {icon}
+        <Text style={styles.activeLabel}>{label}</Text>
+      </LiquidGlass>
+    </Animated.View>
+  );
+
   return (
     <View
       style={[
@@ -46,10 +74,11 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
         <LiquidGlass borderRadius={28} tint="dark" style={styles.navPill}>
           {/* HOME TAB */}
           {activeTab === 'home' ? (
-            <LiquidGlass borderRadius={20} tint="light" style={styles.activePill}>
-              <Home size={18} color="#1A1A1A" strokeWidth={2.4} />
-              <Text style={styles.activeLabel}>Home</Text>
-            </LiquidGlass>
+            renderActivePill(
+              'home',
+              <Home size={18} color="#1A1A1A" strokeWidth={2.4} />,
+              'Home',
+            )
           ) : (
             <Pressable
               onPress={() => handleTab('home')}
@@ -62,10 +91,11 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
 
           {/* ANALYTICS TAB */}
           {activeTab === 'analytics' ? (
-            <LiquidGlass borderRadius={20} tint="light" style={styles.activePill}>
-              <BarChart2 size={18} color="#1A1A1A" strokeWidth={2.4} />
-              <Text style={styles.activeLabel}>Analytic</Text>
-            </LiquidGlass>
+            renderActivePill(
+              'analytics',
+              <BarChart2 size={18} color="#1A1A1A" strokeWidth={2.4} />,
+              'Analytic',
+            )
           ) : (
             <Pressable
               onPress={() => handleTab('analytics')}
@@ -78,10 +108,11 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
 
           {/* SETTINGS TAB */}
           {activeTab === 'settings' ? (
-            <LiquidGlass borderRadius={20} tint="light" style={styles.activePill}>
-              <Settings size={18} color="#1A1A1A" strokeWidth={2.4} />
-              <Text style={styles.activeLabel}>Setting</Text>
-            </LiquidGlass>
+            renderActivePill(
+              'settings',
+              <Settings size={18} color="#1A1A1A" strokeWidth={2.4} />,
+              'Setting',
+            )
           ) : (
             <Pressable
               onPress={() => handleTab('settings')}
