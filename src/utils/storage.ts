@@ -10,62 +10,16 @@ const KEYS = {
   customCategories: '@mfb/custom_categories/v1',
 };
 
-const INITIAL_H1_TRANSACTIONS: Transaction[] = [
-  {
-    id: 'h1_tx_1',
-    amount: 450,
-    type: 'expense',
-    category: 'Food',
-    note: 'Dinner at Spice Villa',
-    timestamp: Date.now() - 1000 * 60 * 60 * 2, // Today 8:42 PM
-  },
-  {
-    id: 'h1_tx_2',
-    amount: 1240,
-    type: 'expense',
-    category: 'Groceries',
-    note: 'Big Bazaar weekly',
-    timestamp: Date.now() - 1000 * 60 * 60 * 4, // Today 6:10 PM
-  },
-  {
-    id: 'h1_tx_3',
-    amount: 180,
-    type: 'expense',
-    category: 'Transport',
-    note: 'Uber to office',
-    timestamp: Date.now() - 1000 * 60 * 60 * 9, // Today 9:15 AM
-  },
-  {
-    id: 'h1_tx_4',
-    amount: 85000,
-    type: 'income',
-    category: 'Salary',
-    note: 'Monthly salary',
-    timestamp: Date.now() - 1000 * 60 * 60 * 26, // Yesterday 12:00 PM
-  },
-  {
-    id: 'h1_tx_5',
-    amount: 1650,
-    type: 'expense',
-    category: 'Bills',
-    note: 'Electricity bill',
-    timestamp: Date.now() - 1000 * 60 * 60 * 28, // Yesterday 10:30 AM
-  },
-];
-
 export async function loadTransactions(): Promise<Transaction[]> {
   try {
     const raw = await AsyncStorage.getItem(KEYS.transactions);
-    if (!raw) {
-      await saveTransactions(INITIAL_H1_TRANSACTIONS);
-      return INITIAL_H1_TRANSACTIONS;
-    }
+    if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
-    // Any valid stored array is authoritative — including an empty one
-    // (the user deleted everything). Seed data only appears on first launch.
-    return Array.isArray(parsed) ? (parsed as Transaction[]) : INITIAL_H1_TRANSACTIONS;
+    // Any valid stored array is authoritative — including an empty one.
+    // Fresh installs start with no data; nothing fake is ever seeded.
+    return Array.isArray(parsed) ? (parsed as Transaction[]) : [];
   } catch {
-    return INITIAL_H1_TRANSACTIONS;
+    return [];
   }
 }
 
