@@ -47,3 +47,6 @@ token-tracker-dashboard.html
 # ---- OS noise ----
 .DS_Store
 Thumbs.db
+
+# preview dev-server logs
+preview-run.log*
