@@ -16,7 +16,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import LiquidGlass from './LiquidGlass';
 
 interface AnimatedModalProps {
   visible: boolean;
@@ -110,11 +109,6 @@ export default function AnimatedModal({
             containerStyle,
           ]}
         >
-          <LiquidGlass
-            borderRadius={24}
-            tint="dark"
-            style={StyleSheet.absoluteFill}
-          />
           {children}
         </Animated.View>
       </View>
@@ -148,6 +142,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     padding: 20,
     maxHeight: '82%',
+    // Solid surface per expnese tracker.pen (Income/Expense Popup = #0A0A0E) —
+    // no liquid-glass blur, the sheet is fully opaque.
+    backgroundColor: '#0A0A0E',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     shadowColor: '#000000',
     shadowOpacity: 0.5,
     shadowRadius: 32,
