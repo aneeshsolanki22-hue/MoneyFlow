@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ChevronLeft, ChevronRight, PieChart } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../theme';
@@ -153,6 +154,14 @@ export default function AnalyticsScreen({
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 12 }]}>
+      {/* Static design gradient (expnese tracker.pen: Analytics Page radial #f55d05 glow) */}
+      <LinearGradient
+        style={StyleSheet.absoluteFill}
+        colors={['#f55d05', '#000000']}
+        locations={[0.12, 0.6]}
+        start={{ x: 0.5, y: 1 }}
+        end={{ x: 0.5, y: 0 }}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[

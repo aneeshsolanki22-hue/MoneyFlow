@@ -20,13 +20,7 @@ import {
   Wallet,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, {
-  FadeIn,
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { Colors, Fonts } from '../theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -44,8 +38,6 @@ import { useToast } from '../components/Toast';
 import CountUpText from '../components/CountUpText';
 import TransactionRow from '../components/TransactionRow';
 import H1Navbar, { type TabType } from '../components/H1Navbar';
-import GrainyGradient from '../components/organisms/grainy-gradient';
-import SpectralWave from '../components/organisms/spectral-wave';
 import AddTransactionModal from './AddTransactionModal';
 import AnalyticsScreen from './AnalyticsScreen';
 import SettingsScreen from './SettingsScreen';
@@ -292,11 +284,12 @@ export default function HomeScreen({ user }: Props) {
         <View style={styles.homeContainer}>
           {/* TOP HERO GRAINY GRADIENT SECTION */}
           <View style={[styles.headerHero, { paddingTop: insets.top + 10 }]}>
-            <GrainyGradient
+            {/* Static design gradient (expnese tracker.pen: h1/h1 dark) — no GPU shader */}
+            <LinearGradient
               style={StyleSheet.absoluteFill}
-              colors={['#02476B', '#011E30', '#0B0B12']}
-              intensity={0.09}
-              speed={1.5}
+              colors={['#020024', '#00d4ff']}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
             />
             {/* HEADER BAR WITH MONTH PILL */}
             <View style={styles.headerBar}>
@@ -323,20 +316,6 @@ export default function HomeScreen({ user }: Props) {
 
             {/* GLASSMORHPIC BALANCE SECTION CARD */}
             <View style={styles.balanceCard}>
-              <SpectralWave
-                style={StyleSheet.absoluteFill}
-                borderRadius={24}
-                width={380}
-                height={190}
-                colors={
-                  isDark
-                    ? ['rgba(0, 212, 255, 0.22)', 'rgba(56, 189, 248, 0.12)', 'rgba(2, 132, 199, 0.25)']
-                    : ['rgba(255, 255, 255, 0.25)', 'rgba(56, 189, 248, 0.18)', 'rgba(0, 212, 255, 0.28)']
-                }
-                timeScale={0.7}
-                scale={1.2}
-                brightness={1.1}
-              />
               <Text style={styles.balanceLabel}>TOTAL BALANCE</Text>
 
               <View style={styles.amountRow}>

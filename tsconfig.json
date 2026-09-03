@@ -9,10 +9,6 @@
     "index.ts"
   ],
   "exclude": [
-    "node_modules",
-    "src/motion-tabs",
-    "src/components/molecules",
-    "src/components/organisms",
-    "src/components/templates"
+    "node_modules"
   ]
 }

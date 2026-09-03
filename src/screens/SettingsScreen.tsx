@@ -29,7 +29,7 @@ import {
   Trash2,
 } from 'lucide-react-native';
 import ReacticxSwitch from '../components/ReacticxSwitch';
-import AnimatedMeshGradient from '../components/organisms/mesh-gradient';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Fonts } from '../theme';
 import { useTheme } from '../contexts/ThemeContext';
@@ -159,17 +159,12 @@ export default function SettingsScreen({
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 16 }]}>
-      <AnimatedMeshGradient
+      {/* Static design gradient (expnese tracker.pen: Settings Page radial #080d4d glow) */}
+      <LinearGradient
         style={StyleSheet.absoluteFill}
-        speed={0.8}
-        noise={0.1}
-        blur={0.5}
-        colors={[
-          { r: 0.05, g: 0.07, b: 0.16 },
-          { r: 0.01, g: 0.02, b: 0.05 },
-          { r: 0.08, g: 0.04, b: 0.14 },
-          { r: 0.02, g: 0.02, b: 0.04 },
-        ]}
+        colors={['#080d4d', '#000000']}
+        start={{ x: 0.5, y: 0 }}
+        end={{ x: 0.5, y: 1 }}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
