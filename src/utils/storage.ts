@@ -89,20 +89,20 @@ export async function saveTheme(theme: 'light' | 'dark'): Promise<void> {
   }
 }
 
-const GRADIENT_VARIANTS: ReadonlyArray<'ocean' | 'ember' | 'lagoon'> = ['ocean', 'ember', 'lagoon'];
+const GRADIENT_VARIANTS: ReadonlyArray<'ocean' | 'ember' | 'lagoon' | 'expresso'> = ['ocean', 'ember', 'lagoon', 'expresso'];
 
-export async function loadGradient(): Promise<'ocean' | 'ember' | 'lagoon' | null> {
+export async function loadGradient(): Promise<'ocean' | 'ember' | 'lagoon' | 'expresso' | null> {
   try {
     const raw = await AsyncStorage.getItem(KEYS.gradient);
     return (GRADIENT_VARIANTS as readonly string[]).includes(raw ?? '')
-      ? (raw as 'ocean' | 'ember' | 'lagoon')
+      ? (raw as 'ocean' | 'ember' | 'lagoon' | 'expresso')
       : null;
   } catch {
     return null;
   }
 }
 
-export async function saveGradient(variant: 'ocean' | 'ember' | 'lagoon'): Promise<void> {
+export async function saveGradient(variant: 'ocean' | 'ember' | 'lagoon' | 'expresso'): Promise<void> {
   try {
     await AsyncStorage.setItem(KEYS.gradient, variant);
   } catch {

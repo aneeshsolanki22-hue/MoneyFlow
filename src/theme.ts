@@ -5,6 +5,8 @@ export const HOME_GRADIENTS = {
   ember: ['#9e0f0d', '#e15c15'],
   /** “Under Blue Green” (uigradients.com): deep navy → sea teal → green → lime */
   lagoon: ['#051937', '#004d7a', '#008793', '#00bf72', '#a8eb12'],
+  /** “eXpresso” (uigradients.com): magenta purple → deep purple */
+  expresso: ['#ad5389', '#3c1053'],
 } as const;
 
 export const DarkColors = {
