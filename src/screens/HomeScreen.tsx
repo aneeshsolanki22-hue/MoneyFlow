@@ -285,10 +285,10 @@ export default function HomeScreen({ user }: Props) {
           {/* TOP HERO GRAINY GRADIENT SECTION */}
           <View style={[styles.headerHero, { paddingTop: insets.top + 10 }]}>
             {/* Static design gradient (expnese tracker.pen: h1 / h1 dark) — no GPU shader.
-                Exact 2-stop from the design: #00d4ff (position 0) → #020024 (position 1). */}
+                Reversed per request: #020024 (navy, top) → #00d4ff (cyan, bottom). */}
             <LinearGradient
               style={StyleSheet.absoluteFill}
-              colors={['#00d4ff', '#020024']}
+              colors={['#020024', '#00d4ff']}
               start={{ x: 0.5, y: 0 }}
               end={{ x: 0.5, y: 1 }}
             />
