@@ -1,0 +1,16 @@
+node_modules/
+.git/
+.expo/
+dist/
+test-results/
+*.apk
+*.log
+eas-*.log
+playwright_*.js
+test_*.js
+design/
+undefined/
+design/*.html
+design/*.png
+design/*.js
+freebuff-*/

@@ -26,6 +26,11 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
+# local build scratch logs
+build-log.txt
+build-info.json
+eas-build-upload*.log
+
 # macOS
 .DS_Store
 *.pem
@@ -39,3 +44,10 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# unpushable / regenerable (size limits)
+*.apk
+eas-build.log
+eas-preview-build.log
+eas-build-upload.log
+eas-build-upload2.log

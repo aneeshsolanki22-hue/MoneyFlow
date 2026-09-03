@@ -1,25 +1,85 @@
 {
   "expo": {
-    "name": "money-follow-brother",
-    "slug": "money-follow-brother",
+    "name": "moneyflow",
+    "slug": "moneyflow",
     "version": "1.0.0",
+    "scheme": "moneyfollowbrother",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0A0E",
+    "updates": {
+      "url": "https://u.expo.dev/7463ad7f-afef-4842-86d7-53a93ce07928"
+    },
+    "runtimeVersion": "84f03024885a006328f1d71db0b5c412c52eefdb",
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.toukirsolanki.moneyflow",
+      "permissions": [
+        "android.permission.VIBRATE",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0B0B12",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "softwareKeyboardLayoutMode": "resize",
+      "predictiveBackGestureEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#0A0A0E"
+        }
+      ],
+      "@react-native-google-signin/google-signin",
+      "expo-updates",
+      "expo-audio",
+      [
+        "expo-share-intent",
+        {
+          "androidIntentFilters": [
+            "text/*",
+            "image/*"
+          ]
+        }
+      ],
+      "expo-mlkit-ocr",
+      "expo-build-properties",
+      [
+        "expo-navigation-bar",
+        {
+          "hidden": true,
+          "style": "light"
+        }
+      ]
+    ],
+    "extra": {
+      "googleClientIds": {
+        "webClientId": "510345420972-0nn2i4nr2acve0etqnda0cf5rjetf8sv.apps.googleusercontent.com"
+      },
+      "eas": {
+        "projectId": "7463ad7f-afef-4842-86d7-53a93ce07928"
+      },
+      "expo-navigation-bar": {
+        "style": "light",
+        "hidden": true
+      }
+    },
+    "owner": "toukir-solanki"
   }
 }
