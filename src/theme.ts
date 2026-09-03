@@ -1,8 +1,8 @@
 export const HOME_GRADIENTS = {
   /** navy top → cyan bottom glow (default look) */
   ocean: ['#020024', '#00d4ff'],
-  /** dark red top → orange bottom (brand look) */
-  ember: ['#9e0f0d', '#e15c15'],
+  /** dark red → orange → dark red (brand look, orange glow in the middle) */
+  ember: ['#9e0f0d', '#e15c15', '#9e0f0d'],
   /** “Under Blue Green” (uigradients.com), reversed: lime → green → teal → deep navy */
   lagoon: ['#a8eb12', '#00bf72', '#008793', '#004d7a', '#051937'],
   /** “eXpresso” (uigradients.com), reversed: deep purple → magenta */
