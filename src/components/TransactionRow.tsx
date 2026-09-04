@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   FadeInDown,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -19,21 +20,28 @@ interface Props {
   tx: Transaction;
   index: number;
   open?: boolean;
+  deleting?: boolean;
   onToggle?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onDeleted?: (id: string) => void;
   colors?: ThemeColors;
   animateIn?: boolean;
 }
 
-const ROW_SHIFT = 24;
-const CIRCLE = 40;
+// Rows are floating cards inset by 20px (aligned with the sheet content).
+// Sliding LEFT by ACTION_W reveals the red delete bar under the card. The
+// list itself is full-bleed, so the sliding card exits through the real
+// screen edge instead of clipping at an internal column edge.
+const ACTION_W = 80;
 
 const TransactionRow = React.memo<Props>(function TransactionRow({
   tx,
   index,
   open = false,
+  deleting = false,
   onToggle,
   onDelete,
+  onDeleted,
   colors = Colors,
   animateIn = true,
 }: Props) {
@@ -46,29 +54,48 @@ const TransactionRow = React.memo<Props>(function TransactionRow({
     isIncome ? `+${formatAmount(tx.amount)}` : `-${formatAmount(tx.amount)}`;
 
   const rowReveal = useSharedValue(open ? 1 : 0);
-  const circleReveal = useSharedValue(open ? 1 : 0);
+  const actionReveal = useSharedValue(open ? 1 : 0);
 
   useEffect(() => {
     rowReveal.value = withTiming(open ? 1 : 0, {
-      duration: 220,
+      duration: 240,
       easing: Easing.out(Easing.cubic),
     });
-    circleReveal.value = withDelay(
-      open ? 60 : 0,
+    actionReveal.value = withDelay(
+      open ? 40 : 0,
       withTiming(open ? 1 : 0, { duration: 200, easing: Easing.out(Easing.cubic) }),
     );
-  }, [open, rowReveal, circleReveal]);
+  }, [open, rowReveal, actionReveal]);
 
-  const rowStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: rowReveal.value * ROW_SHIFT }],
+  const deleteProgress = useSharedValue(0);
+
+  useEffect(() => {
+    if (!deleting || !onDeleted) return;
+    deleteProgress.value = withTiming(
+      1,
+      { duration: 220, easing: Easing.in(Easing.cubic) },
+      (finished) => {
+        if (finished) {
+          // withTiming callbacks run on the UI thread on native — hop back
+          // to JS before touching React state (same pattern as AnimatedModal).
+          runOnJS(onDeleted)(tx.id);
+        }
+      },
+    );
+  }, [deleting, deleteProgress, onDeleted, tx.id]);
+
+  const deletingStyle = useAnimatedStyle(() => ({
+    opacity: 1 - deleteProgress.value,
+    transform: [{ translateX: -deleteProgress.value * 150 }],
   }));
 
-  const circleStyle = useAnimatedStyle(() => ({
-    opacity: circleReveal.value,
-    transform: [
-      { translateX: (1 - circleReveal.value) * -CIRCLE * 1.6 },
-      { scale: 0.5 + 0.5 * circleReveal.value },
-    ],
+  const rowStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: -rowReveal.value * ACTION_W }],
+  }));
+
+  const actionStyle = useAnimatedStyle(() => ({
+    opacity: actionReveal.value,
+    transform: [{ scale: 0.6 + 0.4 * actionReveal.value }],
   }));
 
   return (
@@ -80,19 +107,25 @@ const TransactionRow = React.memo<Props>(function TransactionRow({
               .easing(Easing.out(Easing.cubic))
           : undefined
       }
-      style={styles.outer}
+      style={[styles.outer, deletingStyle]}
     >
       <View style={styles.slot}>
-        {/* Swipe Delete Action */}
-        <Animated.View style={[styles.deleteCircle, circleStyle]}>
-          <Pressable
-            onPress={() => onDelete?.(tx.id)}
-            style={({ pressed }) => [styles.deleteInner, pressed && styles.deletePressed]}
-            hitSlop={6}
-          >
-            <Trash2 size={18} color="#FFFFFF" strokeWidth={2} />
-          </Pressable>
-        </Animated.View>
+        {/* Delete bar — same footprint + radius as the card, revealed as it slides left */}
+        <View style={styles.deleteBar}>
+          <Animated.View style={[styles.deleteAction, actionStyle]}>
+            <Pressable
+              onPress={() => onDelete?.(tx.id)}
+              disabled={deleting}
+              accessibilityLabel={`Delete ${tx.category}`}
+              style={({ pressed }) => [
+                styles.deleteInner,
+                pressed && styles.deletePressed,
+              ]}
+            >
+              <Trash2 size={20} color="#FFFFFF" strokeWidth={2.1} />
+            </Pressable>
+          </Animated.View>
+        </View>
 
         {/* Card Body */}
         <Animated.View
@@ -107,6 +140,7 @@ const TransactionRow = React.memo<Props>(function TransactionRow({
         >
           <Pressable
             onPress={() => onToggle?.(tx.id)}
+            disabled={deleting}
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
           >
             {/* Leading 44x44 Icon Tile */}
@@ -159,37 +193,42 @@ const TransactionRow = React.memo<Props>(function TransactionRow({
 const styles = StyleSheet.create({
   outer: {
     borderRadius: 20,
+    // Floating card: 20px side margin matches the sheet's own content
+    // padding, so card edges stay aligned with the section headers.
+    marginHorizontal: 20,
     marginBottom: 2,
   },
   slot: {
     position: 'relative',
   },
-  deleteCircle: {
+  deleteBar: {
     position: 'absolute',
-    left: -(CIRCLE - ROW_SHIFT),
-    top: (68 - CIRCLE) / 2,
-    width: CIRCLE,
-    height: CIRCLE,
-    borderRadius: CIRCLE / 2,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: '#EF4444',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  deleteAction: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    width: ACTION_W,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#EF4444',
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
-    zIndex: 10,
   },
   deleteInner: {
-    width: CIRCLE,
-    height: CIRCLE,
-    borderRadius: CIRCLE / 2,
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   deletePressed: {
-    opacity: 0.85,
+    opacity: 0.8,
+    transform: [{ scale: 0.94 }],
   },
   rowShell: {
     borderRadius: 20,

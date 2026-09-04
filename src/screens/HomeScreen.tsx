@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BackHandler,
   Platform,
@@ -67,6 +67,7 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
   const [selectedMonth, setSelectedMonth] = useState(() => monthKey(Date.now()));
   const [filter, setFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [openTxId, setOpenTxId] = useState<string | null>(null);
+  const [deletingTxId, setDeletingTxId] = useState<string | null>(null);
   const [modal, setModal] = useState<TxType | null>(null);
   const [backup, setBackup] = useState<BackupState>({
     googleConnected: false,
@@ -184,10 +185,62 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
     setOpenTxId((cur) => (cur === id ? null : id));
   }, []);
 
+  // Snapshot of the most recently deleted transaction, for single-slot Undo.
+  const undoRef = useRef<{ tx: Transaction; index: number } | null>(null);
+  const transactionsRef = useRef<Transaction[]>([]);
+  useEffect(() => {
+    transactionsRef.current = transactions;
+  }, [transactions]);
+  const deletingTxIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    deletingTxIdRef.current = deletingTxId;
+  }, [deletingTxId]);
+
+  // Start the delete: capture the snapshot, close the reveal, animate the row out.
   const handleDeleteTx = useCallback((id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
-    setOpenTxId((cur) => (cur === id ? null : id));
+    const txs = transactionsRef.current;
+    const index = txs.findIndex((t) => t.id === id);
+    if (index === -1) return;
+    undoRef.current = { tx: txs[index], index };
+    setOpenTxId((cur) => (cur === id ? null : cur));
+    if (Platform.OS === 'android') Vibration.vibrate(15);
+    setDeletingTxId(id);
+    // Failsafe: if the row unmounts before its 220ms exit animation can
+    // finish (fast scroll recycling or a month switch), commit the removal
+    // anyway so the tx never gets stuck invisible-but-present in state.
+    setTimeout(() => {
+      if (deletingTxIdRef.current !== id) return;
+      setDeletingTxId((cur) => (cur === id ? null : cur));
+      setTransactions((prev) => prev.filter((t) => t.id !== id));
+    }, 650);
   }, []);
+
+  // Restore the deleted transaction at its original position.
+  const undoDelete = useCallback(() => {
+    const snap = undoRef.current;
+    undoRef.current = null;
+    if (!snap) return;
+    setTransactions((prev) => {
+      const next = [...prev];
+      next.splice(Math.min(snap.index, next.length), 0, snap.tx);
+      return next;
+    });
+  }, []);
+
+  // Called by the row once its exit animation finishes — commit the removal.
+  const handleTxDeleted = useCallback(
+    (id: string) => {
+      setDeletingTxId((cur) => (cur === id ? null : cur));
+      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      const snap = undoRef.current;
+      if (snap?.tx.id === id) {
+        toast('Transaction deleted', {
+          action: { label: 'Undo', onPress: undoDelete },
+        });
+      }
+    },
+    [toast, undoDelete],
+  );
 
   const handleAdd = useCallback(
     (type: TxType, amount: number, category: string, note: string) => {
@@ -415,10 +468,12 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
 
             <SectionList
               sections={sections}
+              style={styles.listFullBleed}
               keyExtractor={(item) => item.id}
               initialNumToRender={10}
               maxToRenderPerBatch={12}
               removeClippedSubviews={Platform.OS === 'android'}
+              onScrollBeginDrag={() => setOpenTxId(null)}
               renderSectionHeader={({ section }) => (
                 <Text
                   style={[
@@ -435,8 +490,10 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
                   index={index}
                   animateIn={!listAnimated}
                   open={openTxId === item.id}
+                  deleting={deletingTxId === item.id}
                   onToggle={toggleTxReveal}
                   onDelete={handleDeleteTx}
+                  onDeleted={handleTxDeleted}
                   colors={colors}
                 />
               )}
@@ -669,6 +726,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingTop: 4,
   },
+  // Section-header labels keep the 20px inset, matching the floating cards.
   dateGroupHeader: {
     color: 'rgba(11, 11, 18, 0.45)',
     fontSize: 12,
@@ -677,6 +735,14 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
     marginLeft: 2,
+    paddingHorizontal: 20,
+  },
+  // The list spans the full sheet width while each row card keeps its own
+  // 20px margin. Full-bleed here is what lets a revealed row slide out
+  // through the real screen edge instead of clipping at an internal column
+  // edge on web.
+  listFullBleed: {
+    marginHorizontal: -20,
   },
   separator: {
     height: 8,
