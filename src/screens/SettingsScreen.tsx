@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import * as Updates from 'expo-updates';
 import {
   ActivityIndicator,
   Alert,
