@@ -25,6 +25,7 @@ import {
   CloudDownload,
   CloudUpload,
   Coins,
+  Download,
   Mail,
   Moon,
   Palette,
@@ -72,6 +73,39 @@ export default function SettingsScreen({
   const [backingUp, setBackingUp] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [showCurrencyGrid, setShowCurrencyGrid] = useState(false);
+  const [updating, setUpdating] = useState(false);
+
+  const handleUpdatePress = useCallback(async () => {
+    if (Platform.OS === 'android') Vibration.vibrate(15);
+    if (__DEV__) {
+      toast('OTA updates are only available in production builds');
+      return;
+    }
+    setUpdating(true);
+    try {
+      const result = await Updates.checkForUpdateAsync();
+      if (!result.isAvailable) {
+        toast("You're on the latest version");
+        return;
+      }
+      await Updates.fetchUpdateAsync();
+      Alert.alert(
+        'Update Ready',
+        'The update has been downloaded. Restart the app to apply it now?',
+        [
+          { text: 'Later', style: 'cancel' },
+          { text: 'Restart', onPress: () => Updates.reloadAsync() },
+        ],
+      );
+    } catch (err) {
+      const message = (err as { message?: string } | undefined)?.message;
+      toast(
+        message ? `Update failed: ${message}` : 'Update failed, please try again',
+      );
+    } finally {
+      setUpdating(false);
+    }
+  }, [toast]);
 
   const handleGoogleAuth = useCallback(async () => {
     if (Platform.OS === 'android') Vibration.vibrate(15);
@@ -277,6 +311,31 @@ export default function SettingsScreen({
           </Pressable>
         </View>
 
+        {/* OTA APP UPDATE CARD */}
+        <Pressable
+          onPress={handleUpdatePress}
+          disabled={updating}
+          style={({ pressed }) => [
+            styles.updateCard,
+            pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+          ]}
+        >
+          <View style={styles.updateIconBox}>
+            {updating ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Download size={20} color="#FFFFFF" strokeWidth={2.2} />
+            )}
+          </View>
+          <View style={styles.updateTextGroup}>
+            <Text style={styles.prefTitle}>Update app</Text>
+            <Text style={styles.prefSub}>
+              {updating ? 'Checking for updates…' : 'Install the latest version via OTA'}
+            </Text>
+          </View>
+          <ChevronRight size={18} color="#9CA3AF" />
+        </Pressable>
+
         {/* PREFERENCES CARD */}
         <View style={styles.preferencesCard}>
           {/* CURRENCY ROW */}
@@ -438,11 +497,12 @@ export default function SettingsScreen({
             <Image source={appLogo} style={{ width: 44, height: 44, borderRadius: 12 }} />
             <View style={{ flex: 1, gap: 2 }}>
               <Text style={styles.aboutTitle}>MoneyFlow</Text>
-              <Text style={styles.versionText}>Version 1.0.0</Text>
+              <Text style={styles.versionText}>Version 1.0.1</Text>
             </View>
           </View>
           <Text style={styles.aboutText}>
-            MoneyFlow — a smart money tracker and create by Toukir
+            MoneyFlow — a smart money tracker, created by{' '}
+            <Text style={styles.aboutName}>Toukir Solanki</Text>
           </Text>
         </View>
       </ScrollView>
@@ -459,6 +519,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     gap: 16,
+  },
+  updateCard: {
+    backgroundColor: '#121212',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  updateIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  updateTextGroup: {
+    flex: 1,
+    gap: 2,
   },
   header: {
     marginBottom: 4,
@@ -678,6 +760,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: Fonts.body,
     lineHeight: 18,
+  },
+  aboutName: {
+    color: Colors.accent,
+    fontFamily: Fonts.displaySemi,
   },
   versionText: {
     color: 'rgba(255, 255, 255, 0.35)',

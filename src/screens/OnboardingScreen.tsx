@@ -25,7 +25,7 @@ import {
   GoogleSignin,
   isSuccessResponse,
 } from '@react-native-google-signin/google-signin';
-import { Fonts } from '../theme';
+import { Colors, Fonts } from '../theme';
 import { CURRENCIES, useCurrency } from '../contexts/CurrencyContext';
 import { useToast } from '../components/Toast';
 import { DRIVE_SCOPE, getGoogleClientIds } from '../utils/drive';
@@ -262,7 +262,7 @@ export default function OnboardingScreen({ onDone }: Props) {
           entering={FadeIn.delay(1200).duration(600)}
           style={styles.credit}
         >
-          Designed by Toukir Solanki
+          Designed by <Animated.Text style={styles.creditName}>Toukir Solanki</Animated.Text>
         </Animated.Text>
       </ScrollView>
     </View>
@@ -492,5 +492,8 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     textAlign: 'center',
     marginTop: 16,
+  },
+  creditName: {
+    color: Colors.accent,
   },
 });

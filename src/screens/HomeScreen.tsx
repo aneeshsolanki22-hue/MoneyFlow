@@ -330,8 +330,8 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
               </View>
             </View>
 
-            {/* GLASSMORHPIC BALANCE SECTION CARD */}
-            <View style={styles.balanceCard}>
+            {/* TOTAL BALANCE — sits directly on the gradient, no card */}
+            <View style={styles.balanceSection}>
               <Text style={styles.balanceLabel}>TOTAL BALANCE</Text>
 
               <View style={styles.amountRow}>
@@ -351,7 +351,7 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
                   onPress={() => setFilter((cur) => (cur === 'income' ? 'all' : 'income'))}
                   style={({ pressed }) => [
                     styles.statBadge,
-                    isDark && { backgroundColor: '#1a1a1a', shadowOpacity: 0.3 },
+                    isDark && { backgroundColor: '#000000', shadowOpacity: 0.3 },
                     filter === 'income' && styles.statBadgeActive,
                     pressed && { transform: [{ scale: 0.96 }] },
                   ]}
@@ -368,7 +368,7 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
                   onPress={() => setFilter((cur) => (cur === 'expense' ? 'all' : 'expense'))}
                   style={({ pressed }) => [
                     styles.statBadge,
-                    isDark && { backgroundColor: '#1a1a1a', shadowOpacity: 0.3 },
+                    isDark && { backgroundColor: '#000000', shadowOpacity: 0.3 },
                     filter === 'expense' && styles.statBadgeActive,
                     pressed && { transform: [{ scale: 0.96 }] },
                   ]}
@@ -556,13 +556,10 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.displaySemi,
     letterSpacing: 0.3,
   },
-  balanceCard: {
-    overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    borderRadius: 24,
-    paddingVertical: 22,
-    paddingHorizontal: 16,
+  balanceSection: {
     alignItems: 'center',
+    paddingTop: 26,
+    paddingBottom: 24,
   },
   balanceLabel: {
     color: 'rgba(255, 255, 255, 0.75)',

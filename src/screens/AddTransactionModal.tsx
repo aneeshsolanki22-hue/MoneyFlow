@@ -135,7 +135,9 @@ export default function AddTransactionModal({
             <Text
               style={[
                 styles.segmentText,
+                styles.segmentTextIncome,
                 isIncome && styles.segmentTextActive,
+                isIncome && styles.segmentTextIncomeActive,
               ]}
             >
               Income
@@ -152,7 +154,9 @@ export default function AddTransactionModal({
             <Text
               style={[
                 styles.segmentText,
+                styles.segmentTextExpense,
                 !isIncome && styles.segmentTextActive,
+                !isIncome && styles.segmentTextExpenseActive,
               ]}
             >
               Expense
@@ -373,6 +377,18 @@ const styles = StyleSheet.create({
   segmentTextActive: {
     color: '#0A0A0E',
     fontFamily: Fonts.displaySemi,
+  },
+  segmentTextIncome: {
+    color: 'rgba(22, 163, 74, 0.7)',
+  },
+  segmentTextIncomeActive: {
+    color: '#16A34A',
+  },
+  segmentTextExpense: {
+    color: 'rgba(220, 38, 38, 0.7)',
+  },
+  segmentTextExpenseActive: {
+    color: '#DC2626',
   },
   fieldLabel: {
     color: '#9CA3AF',
