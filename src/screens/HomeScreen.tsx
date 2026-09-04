@@ -11,8 +11,6 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  ArrowRight,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   TrendingDown,
@@ -20,7 +18,7 @@ import {
   Wallet,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { FadeIn } from 'react-native-reanimated';
+
 import { Colors, Fonts, HOME_GRADIENTS } from '../theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCurrency } from '../contexts/CurrencyContext';
@@ -52,6 +50,9 @@ const MONTH_NAMES_FULL = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
+/** Stable separator — defined outside component so identity never changes. */
+const ListSeparator = () => <View style={{ height: 8 }} />;
+
 export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
   const insets = useSafeAreaInsets();
   const toast = useToast();
@@ -74,6 +75,18 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
   });
   const [googleToken, setGoogleToken] = useState<string | null>(initialGoogleToken);
   const [listAnimated, setListAnimated] = useState(false);
+  // Track which tabs have been visited — mount on first visit, stay mounted.
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabType>>(() => new Set<TabType>(['home']));
+
+  const handleTabChange = useCallback((tab: TabType) => {
+    setCurrentTab(tab);
+    setVisitedTabs((prev) => {
+      if (prev.has(tab)) return prev;
+      const next = new Set(prev);
+      next.add(tab);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (ready && transactions.length > 0) {
@@ -422,12 +435,12 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
                   index={index}
                   animateIn={!listAnimated}
                   open={openTxId === item.id}
-                  onToggle={() => toggleTxReveal(item.id)}
-                  onDelete={() => handleDeleteTx(item.id)}
+                  onToggle={toggleTxReveal}
+                  onDelete={handleDeleteTx}
                   colors={colors}
                 />
               )}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              ItemSeparatorComponent={ListSeparator}
               stickySectionHeadersEnabled={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={[
@@ -435,7 +448,7 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
                 { paddingBottom: 110 + Math.max(insets.bottom, 16) },
               ]}
               ListEmptyComponent={
-                <Animated.View entering={FadeIn.duration(400)} style={styles.empty}>
+                <View style={styles.empty}>
                   <View style={styles.emptyTile}>
                     <Wallet size={26} color={isDark ? '#FFFFFF' : '#0B0B12'} strokeWidth={1.8} />
                   </View>
@@ -453,38 +466,42 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
                       ? 'Tap the filter pill again to clear.'
                       : 'Tap the + button below to add your first entry.'}
                   </Text>
-                </Animated.View>
+                </View>
               }
             />
           </View>
         </View>
 
-      {/* 2. ANALYTICS TAB */}
-      <View style={[{ flex: 1 }, currentTab !== 'analytics' && styles.hidden]}>
-        <AnalyticsScreen
-          transactions={transactions}
-          selectedMonth={selectedMonth}
-          onMonthChange={setSelectedMonth}
-        />
-      </View>
+      {/* 2. ANALYTICS TAB — mount on first visit, then stay mounted */}
+      {visitedTabs.has('analytics') && (
+        <View style={[{ flex: 1 }, currentTab !== 'analytics' && styles.hidden]}>
+          <AnalyticsScreen
+            transactions={transactions}
+            selectedMonth={selectedMonth}
+            onMonthChange={setSelectedMonth}
+          />
+        </View>
+      )}
 
-      {/* 3. SETTINGS TAB */}
-      <View style={[{ flex: 1 }, currentTab !== 'settings' && styles.hidden]}>
-        <SettingsScreen
-          backup={backup}
-          connected={backup.googleConnected && googleToken !== null}
-          onSignedIn={handleSignedIn}
-          onSignedOut={handleSignedOut}
-          onBackup={handleBackup}
-          onRestore={handleRestore}
-        />
-      </View>
+      {/* 3. SETTINGS TAB — mount on first visit, then stay mounted */}
+      {visitedTabs.has('settings') && (
+        <View style={[{ flex: 1 }, currentTab !== 'settings' && styles.hidden]}>
+          <SettingsScreen
+            backup={backup}
+            connected={backup.googleConnected && googleToken !== null}
+            onSignedIn={handleSignedIn}
+            onSignedOut={handleSignedOut}
+            onBackup={handleBackup}
+            onRestore={handleRestore}
+          />
+        </View>
+      )}
 
 
       {/* FLOATING BOTTOM NAVBAR */}
       <H1Navbar
         activeTab={currentTab}
-        onTabChange={setCurrentTab}
+        onTabChange={handleTabChange}
         onAddPress={() => setModal('expense')}
       />
 
@@ -493,13 +510,12 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
         visible={modal !== null}
         type={modal ?? 'expense'}
         onClose={() => setModal(null)}
-        onSave={(type, amount, category, note) => {
-          handleAdd(type, amount, category, note);
-        }}
+        onSave={handleAdd}
       />
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   root: {

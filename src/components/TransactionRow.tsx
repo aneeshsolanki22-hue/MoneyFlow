@@ -1,4 +1,4 @@
-﻿import React, { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -19,8 +19,8 @@ interface Props {
   tx: Transaction;
   index: number;
   open?: boolean;
-  onToggle?: () => void;
-  onDelete?: () => void;
+  onToggle?: (id: string) => void;
+  onDelete?: (id: string) => void;
   colors?: ThemeColors;
   animateIn?: boolean;
 }
@@ -86,7 +86,7 @@ const TransactionRow = React.memo<Props>(function TransactionRow({
         {/* Swipe Delete Action */}
         <Animated.View style={[styles.deleteCircle, circleStyle]}>
           <Pressable
-            onPress={onDelete}
+            onPress={() => onDelete?.(tx.id)}
             style={({ pressed }) => [styles.deleteInner, pressed && styles.deletePressed]}
             hitSlop={6}
           >
@@ -106,7 +106,7 @@ const TransactionRow = React.memo<Props>(function TransactionRow({
           ]}
         >
           <Pressable
-            onPress={onToggle}
+            onPress={() => onToggle?.(tx.id)}
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
           >
             {/* Leading 44x44 Icon Tile */}
@@ -159,11 +159,6 @@ const TransactionRow = React.memo<Props>(function TransactionRow({
 const styles = StyleSheet.create({
   outer: {
     borderRadius: 20,
-    shadowColor: '#000000',
-    shadowOpacity: 0.04,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
     marginBottom: 2,
   },
   slot: {
