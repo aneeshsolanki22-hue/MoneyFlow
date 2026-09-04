@@ -281,8 +281,7 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
   return (
     <View style={styles.root}>
       {/* 1. HOME TAB */}
-      {currentTab === 'home' && (
-        <View style={styles.homeContainer}>
+      <View style={[styles.homeContainer, currentTab !== 'home' && styles.hidden]}>
           {/* FULL-SCREEN GRADIENT — no GPU shader. Colors come from the independent
               “Home gradient” setting (ocean/sky); it does NOT change with dark mode.
               Spans the whole home background so the sheet corners rest on a continuous fade. */}
@@ -459,19 +458,18 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
             />
           </View>
         </View>
-      )}
 
       {/* 2. ANALYTICS TAB */}
-      {currentTab === 'analytics' && (
+      <View style={[{ flex: 1 }, currentTab !== 'analytics' && styles.hidden]}>
         <AnalyticsScreen
           transactions={transactions}
           selectedMonth={selectedMonth}
           onMonthChange={setSelectedMonth}
         />
-      )}
+      </View>
 
       {/* 3. SETTINGS TAB */}
-      {currentTab === 'settings' && (
+      <View style={[{ flex: 1 }, currentTab !== 'settings' && styles.hidden]}>
         <SettingsScreen
           backup={backup}
           connected={backup.googleConnected && googleToken !== null}
@@ -480,7 +478,8 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
           onBackup={handleBackup}
           onRestore={handleRestore}
         />
-      )}
+      </View>
+
 
       {/* FLOATING BOTTOM NAVBAR */}
       <H1Navbar
@@ -506,6 +505,9 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: '#F0F5FB',
+  },
+  hidden: {
+    display: 'none',
   },
   homeContainer: {
     flex: 1,
@@ -539,20 +541,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   balanceCard: {
-    position: 'relative',
     overflow: 'hidden',
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
     paddingVertical: 22,
     paddingHorizontal: 16,
     alignItems: 'center',
-    shadowColor: '#000000',
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
   },
   balanceLabel: {
     color: 'rgba(255, 255, 255, 0.75)',

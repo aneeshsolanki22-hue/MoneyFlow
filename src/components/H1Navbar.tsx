@@ -3,8 +3,7 @@ import { Platform, Pressable, StyleSheet, Text, Vibration, View } from 'react-na
 import { BarChart2, Home, Plus, Settings } from 'lucide-react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Fonts } from '../theme';
-import LiquidGlass from './LiquidGlass';
+import { Fonts } from '../theme';
 
 export type TabType = 'home' | 'analytics' | 'settings';
 
@@ -12,6 +11,29 @@ interface Props {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
   onAddPress: () => void;
+}
+
+/** Lightweight frosted pill — no BlurView, no GPU overdraw. */
+function GlassPill({
+  children,
+  style,
+  light = false,
+}: {
+  children: React.ReactNode;
+  style?: object;
+  light?: boolean;
+}) {
+  return (
+    <View
+      style={[
+        styles.glassPillBase,
+        light ? styles.glassPillLight : styles.glassPillDark,
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
 }
 
 export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) {
@@ -42,14 +64,14 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
       pointerEvents="box-none"
     >
       <View style={styles.navRow}>
-        {/* LIQUID GLASS NAV PILL CONTAINER */}
-        <LiquidGlass borderRadius={28} tint="dark" style={styles.navPill}>
+        {/* NAV PILL */}
+        <GlassPill style={styles.navPill}>
           {/* HOME TAB */}
           {activeTab === 'home' ? (
-            <LiquidGlass borderRadius={20} tint="light" style={styles.activePill}>
+            <GlassPill light style={styles.activePill}>
               <Home size={18} color="#1A1A1A" strokeWidth={2.4} />
               <Text style={styles.activeLabel}>Home</Text>
-            </LiquidGlass>
+            </GlassPill>
           ) : (
             <Pressable
               onPress={() => handleTab('home')}
@@ -62,10 +84,10 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
 
           {/* ANALYTICS TAB */}
           {activeTab === 'analytics' ? (
-            <LiquidGlass borderRadius={20} tint="light" style={styles.activePill}>
+            <GlassPill light style={styles.activePill}>
               <BarChart2 size={18} color="#1A1A1A" strokeWidth={2.4} />
               <Text style={styles.activeLabel}>Analytic</Text>
-            </LiquidGlass>
+            </GlassPill>
           ) : (
             <Pressable
               onPress={() => handleTab('analytics')}
@@ -78,10 +100,10 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
 
           {/* SETTINGS TAB */}
           {activeTab === 'settings' ? (
-            <LiquidGlass borderRadius={20} tint="light" style={styles.activePill}>
+            <GlassPill light style={styles.activePill}>
               <Settings size={18} color="#1A1A1A" strokeWidth={2.4} />
               <Text style={styles.activeLabel}>Setting</Text>
-            </LiquidGlass>
+            </GlassPill>
           ) : (
             <Pressable
               onPress={() => handleTab('settings')}
@@ -91,9 +113,9 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
               <Settings size={22} color="#FFFFFF" strokeWidth={2} />
             </Pressable>
           )}
-        </LiquidGlass>
+        </GlassPill>
 
-        {/* LIQUID GLASS ADD FAB */}
+        {/* FAB ADD BUTTON */}
         <Animated.View style={fabAnimatedStyle}>
           <Pressable
             onPressIn={() => {
@@ -104,9 +126,9 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
             }}
             onPress={handleFab}
           >
-            <LiquidGlass borderRadius={28} tint="light" style={styles.fab}>
+            <GlassPill light style={styles.fab}>
               <Plus size={24} color="#1A1A1A" strokeWidth={2.8} />
-            </LiquidGlass>
+            </GlassPill>
           </Pressable>
         </Animated.View>
       </View>
@@ -131,6 +153,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 10,
   },
+  glassPillBase: {
+    borderRadius: 28,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  glassPillDark: {
+    backgroundColor: 'rgba(20, 20, 30, 0.72)',
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+  },
+  glassPillLight: {
+    backgroundColor: 'rgba(255, 255, 255, 0.88)',
+    borderColor: 'rgba(255, 255, 255, 0.95)',
+  },
   navPill: {
     flex: 1,
     height: 56,
@@ -145,6 +180,7 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 9,
     paddingHorizontal: 14,
+    borderRadius: 20,
   },
   activeLabel: {
     color: '#1A1A1A',
@@ -163,5 +199,6 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 28,
   },
 });
