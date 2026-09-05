@@ -1,8 +1,10 @@
 import type { ComponentType } from 'react';
 import {
+  Banknote,
   BookOpen,
   Bus,
   Coffee,
+  CreditCard,
   Dog,
   Dumbbell,
   Film,
@@ -100,6 +102,8 @@ export const INCOME_SOURCES: CategoryDef[] = [
   { name: 'Freelance', icon: Laptop, color: '#38BDF8', tile: '#38BDF822' },
   { name: 'Gift', icon: Gift, color: '#F472B6', tile: '#F472B622' },
   { name: 'Investment', icon: TrendingUp, color: '#A78BFA', tile: '#A78BFA22' },
+  { name: 'Income', icon: Banknote, color: '#34D399', tile: '#34D39922' },
+  { name: 'Payment', icon: CreditCard, color: '#6366F1', tile: '#6366F122' },
   { name: 'Other', icon: MoreHorizontal, color: '#9CA3AF', tile: '#9CA3AF22' },
 ];
 

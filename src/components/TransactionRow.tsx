@@ -201,14 +201,17 @@ const styles = StyleSheet.create({
   slot: {
     position: 'relative',
   },
+  // Inset 2px on all sides so the red panel always sits INSIDE the card's
+  // footprint — on Android the absolute bar can otherwise render slightly
+  // larger than the card and show a red frame around it even when closed.
   deleteBar: {
     position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    top: 2,
+    bottom: 2,
+    left: 2,
+    right: 2,
     backgroundColor: '#EF4444',
-    borderRadius: 20,
+    borderRadius: 18,
     overflow: 'hidden',
   },
   deleteAction: {
@@ -233,6 +236,9 @@ const styles = StyleSheet.create({
   rowShell: {
     borderRadius: 20,
     borderWidth: 1,
+    // Keep the card composited above the delete bar on Android — transformed
+    // siblings can otherwise layer over each other regardless of tree order.
+    zIndex: 1,
   },
   row: {
     height: 68,
