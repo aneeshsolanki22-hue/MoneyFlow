@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Check, Plus } from 'lucide-react-native';
@@ -177,7 +177,7 @@ export default function AddTransactionModal({
           <TextInput
             value={note}
             onChangeText={setNote}
-            placeholder={isIncome ? 'e.g. Salary, Freelance, Gift' : 'e.g. Food, Transport, Bills'}
+            placeholder={isIncome ? 'e.g. Income, Payment, Salary' : 'e.g. Food, Transport, Bills'}
             placeholderTextColor="#6B7280"
             style={styles.noteInput}
             maxLength={48}

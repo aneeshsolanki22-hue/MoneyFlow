@@ -68,6 +68,8 @@ export const AVAILABLE_CATEGORY_ICONS: { name: string; icon: IconType }[] = [
   { name: 'Zap', icon: Zap },
   { name: 'Receipt', icon: Receipt },
   { name: 'Wallet', icon: Wallet },
+  { name: 'Banknote', icon: Banknote },
+  { name: 'CreditCard', icon: CreditCard },
   { name: 'Laptop', icon: Laptop },
   { name: 'Gift', icon: Gift },
   { name: 'TrendingUp', icon: TrendingUp },
@@ -97,12 +99,12 @@ export const EXPENSE_CATEGORIES: CategoryDef[] = [
 ];
 
 export const INCOME_SOURCES: CategoryDef[] = [
+  { name: 'Income', icon: Banknote, color: '#34D399' },
+  { name: 'Payment', icon: CreditCard, color: '#6366F1' },
   { name: 'Salary', icon: Wallet, color: '#4ADE80' },
   { name: 'Freelance', icon: Laptop, color: '#38BDF8' },
   { name: 'Gift', icon: Gift, color: '#F472B6' },
   { name: 'Investment', icon: TrendingUp, color: '#A78BFA' },
-  { name: 'Income', icon: Banknote, color: '#34D399' },
-  { name: 'Payment', icon: CreditCard, color: '#6366F1' },
   { name: 'Other', icon: MoreHorizontal, color: '#9CA3AF' },
 ];
 
