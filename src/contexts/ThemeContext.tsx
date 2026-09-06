@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { DarkColors, LightColors, type ThemeColors } from "../theme";
 import { loadGradient, loadTheme, saveGradient, saveTheme } from "../utils/storage";
 import type { GradientVariant } from "../types";
@@ -53,8 +53,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const colors = theme === "dark" ? DarkColors : LightColors;
 
+  // Stable value so consumers don't re-render on unrelated provider renders.
+  const value = useMemo(
+    () => ({ theme, colors, toggleTheme, gradient, setGradient }),
+    [theme, colors, toggleTheme, gradient, setGradient],
+  );
+
   return (
-    <ThemeContext.Provider value={{ theme, colors, toggleTheme, gradient, setGradient }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

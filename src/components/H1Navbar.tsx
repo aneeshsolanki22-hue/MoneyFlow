@@ -1,11 +1,23 @@
 import React from 'react';
 import { Platform, Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
-import { BarChart2, Home, Plus, Settings } from 'lucide-react-native';
+import {
+  BarChart2,
+  Home,
+  Plus,
+  Settings,
+  type LucideIcon,
+} from 'lucide-react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Fonts } from '../theme';
 
 export type TabType = 'home' | 'analytics' | 'settings';
+
+const TABS: { key: TabType; label: string; icon: LucideIcon }[] = [
+  { key: 'home', label: 'Home', icon: Home },
+  { key: 'analytics', label: 'Analytic', icon: BarChart2 },
+  { key: 'settings', label: 'Setting', icon: Settings },
+];
 
 interface Props {
   activeTab: TabType;
@@ -66,52 +78,22 @@ export default function H1Navbar({ activeTab, onTabChange, onAddPress }: Props) 
       <View style={styles.navRow}>
         {/* NAV PILL */}
         <GlassPill style={styles.navPill}>
-          {/* HOME TAB */}
-          {activeTab === 'home' ? (
-            <GlassPill light style={styles.activePill}>
-              <Home size={18} color="#1A1A1A" strokeWidth={2.4} />
-              <Text style={styles.activeLabel}>Home</Text>
-            </GlassPill>
-          ) : (
-            <Pressable
-              onPress={() => handleTab('home')}
-              style={styles.iconBtn}
-              hitSlop={8}
-            >
-              <Home size={22} color="#FFFFFF" strokeWidth={2} />
-            </Pressable>
-          )}
-
-          {/* ANALYTICS TAB */}
-          {activeTab === 'analytics' ? (
-            <GlassPill light style={styles.activePill}>
-              <BarChart2 size={18} color="#1A1A1A" strokeWidth={2.4} />
-              <Text style={styles.activeLabel}>Analytic</Text>
-            </GlassPill>
-          ) : (
-            <Pressable
-              onPress={() => handleTab('analytics')}
-              style={styles.iconBtn}
-              hitSlop={8}
-            >
-              <BarChart2 size={22} color="#FFFFFF" strokeWidth={2} />
-            </Pressable>
-          )}
-
-          {/* SETTINGS TAB */}
-          {activeTab === 'settings' ? (
-            <GlassPill light style={styles.activePill}>
-              <Settings size={18} color="#1A1A1A" strokeWidth={2.4} />
-              <Text style={styles.activeLabel}>Setting</Text>
-            </GlassPill>
-          ) : (
-            <Pressable
-              onPress={() => handleTab('settings')}
-              style={styles.iconBtn}
-              hitSlop={8}
-            >
-              <Settings size={22} color="#FFFFFF" strokeWidth={2} />
-            </Pressable>
+          {TABS.map(({ key, label, icon: TabIcon }) =>
+            activeTab === key ? (
+              <GlassPill key={key} light style={styles.activePill}>
+                <TabIcon size={18} color="#1A1A1A" strokeWidth={2.4} />
+                <Text style={styles.activeLabel}>{label}</Text>
+              </GlassPill>
+            ) : (
+              <Pressable
+                key={key}
+                onPress={() => handleTab(key)}
+                style={styles.iconBtn}
+                hitSlop={8}
+              >
+                <TabIcon size={22} color="#FFFFFF" strokeWidth={2} />
+              </Pressable>
+            ),
           )}
         </GlassPill>
 

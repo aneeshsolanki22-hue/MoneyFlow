@@ -18,16 +18,12 @@
     "android": {
       "package": "com.toukirsolanki.moneyflow",
       "permissions": [
-        "android.permission.VIBRATE",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        "android.permission.VIBRATE"
       ],
       "adaptiveIcon": {
         "backgroundColor": "#0B0B12",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "monochromeImage": "./assets/android-icon-foreground.png"
       },
       "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": true
@@ -48,27 +44,6 @@
       ],
       "@react-native-google-signin/google-signin",
       "expo-updates",
-      "expo-audio",
-      [
-        "expo-share-intent",
-        {
-          "androidIntentFilters": [
-            "text/*",
-            "image/*"
-          ]
-        }
-      ],
-      "expo-mlkit-ocr",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "extraMavenRepos": [
-              "https://maven-central.storage-download.googleapis.com/maven2"
-            ]
-          }
-        }
-      ],
       [
         "expo-navigation-bar",
         {
@@ -76,7 +51,15 @@
           "style": "light"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "abiFilters": ["arm64-v8a"]
+          }
+        }
+      ]
     ],
     "extra": {
       "googleClientIds": {

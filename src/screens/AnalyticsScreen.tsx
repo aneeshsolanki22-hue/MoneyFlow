@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+﻿import React, { memo, useMemo, useState } from 'react';
 import {
   Platform,
   Pressable,
@@ -16,7 +16,7 @@ import { Fonts } from '../theme';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCategories } from '../contexts/CategoryContext';
 import type { Transaction, TxType } from '../types';
-import { monthKey } from '../utils/format';
+import { MONTH_NAMES_FULL, monthDate, monthKey } from '../utils/format';
 
 interface Props {
   transactions: Transaction[];
@@ -24,25 +24,7 @@ interface Props {
   onMonthChange: (month: string) => void;
 }
 
-const MONTH_NAMES_FULL = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
-
-const DEFAULT_CATEGORY_COLORS: Record<string, string> = {
-  Food: '#EF4444',
-  Transport: '#F59E0B',
-  Groceries: '#22C55E',
-  Utilities: '#3B82F6',
-  Bills: '#8B5CF6',
-  Salary: '#22C55E',
-  Freelance: '#38BDF8',
-  Gift: '#F472B6',
-  Investment: '#A78BFA',
-  Other: '#9CA3AF',
-};
-
-export default function AnalyticsScreen({
+function AnalyticsScreen({
   transactions,
   selectedMonth,
   onMonthChange,
@@ -54,10 +36,7 @@ export default function AnalyticsScreen({
   const [activeType, setActiveType] = useState<TxType>('expense');
 
   // Month parsing
-  const currentMonthDate = useMemo(() => {
-    const [yearStr, monthStr] = selectedMonth.split('-');
-    return new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, 1);
-  }, [selectedMonth]);
+  const currentMonthDate = useMemo(() => monthDate(selectedMonth), [selectedMonth]);
 
   const monthName = MONTH_NAMES_FULL[currentMonthDate.getMonth()];
   const yearName = String(currentMonthDate.getFullYear());
@@ -88,13 +67,12 @@ export default function AnalyticsScreen({
 
     const items = [...map.entries()].map(([catName, amount]) => {
       const def = getCategory(activeType, catName);
-      const color = DEFAULT_CATEGORY_COLORS[catName] || def.color || '#38BDF8';
       const percentage = totalAmount > 0 ? Math.round((amount / totalAmount) * 100) : 0;
       return {
         name: catName,
         amount,
         percentage,
-        color,
+        color: def.color,
       };
     });
 
@@ -320,13 +298,13 @@ export default function AnalyticsScreen({
       </ScrollView>
     </View>
   );
-}
+}export default memo(AnalyticsScreen);
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#02030A',
-  },
+    root: {
+      flex: 1,
+      backgroundColor: '#02030A',
+    },
   scrollContent: {
     paddingHorizontal: 20,
     gap: 16,

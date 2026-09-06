@@ -21,14 +21,10 @@ import Animated, {
   SlideInRight,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  GoogleSignin,
-  isSuccessResponse,
-} from '@react-native-google-signin/google-signin';
 import { Colors, Fonts } from '../theme';
 import { CURRENCIES, useCurrency } from '../contexts/CurrencyContext';
 import { useToast } from '../components/Toast';
-import { DRIVE_SCOPE, getGoogleClientIds } from '../utils/drive';
+import { getGoogleClientIds, signInWithGoogle } from '../utils/drive';
 
 interface GoogleCred {
   token: string;
@@ -92,25 +88,15 @@ export default function OnboardingScreen({ onDone }: Props) {
 
   const handleGoogle = async () => {
     if (busy) return;
-    const { webClientId, androidClientId } = getGoogleClientIds();
-    if (!webClientId) {
+    if (!getGoogleClientIds().webClientId) {
       toast('Google sign-in is not configured');
       return;
     }
     setBusy(true);
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      GoogleSignin.configure({
-        webClientId,
-        ...(androidClientId ? { androidClientId } : {}),
-        scopes: ['profile', 'email', DRIVE_SCOPE],
-      });
-      const result = await GoogleSignin.signIn();
-      if (!isSuccessResponse(result)) return; // user cancelled
-      const tokens = await GoogleSignin.getTokens();
-      if (!tokens.accessToken) throw new Error('No access token returned');
-      const email = result.data.user.email || 'Google account';
-      setGoogleCred({ token: tokens.accessToken, email });
+      const cred = await signInWithGoogle();
+      if (!cred) return; // user cancelled
+      setGoogleCred(cred);
       setStep('currency');
     } catch (err) {
       const code = (err as { code?: string | number } | undefined)?.code;

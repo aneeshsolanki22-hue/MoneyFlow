@@ -1,4 +1,4 @@
-﻿import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+﻿import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { CurrencyInfo } from '../types';
 import { loadCurrency, saveCurrency } from '../utils/storage';
 import { formatCurrency, formatNumber } from '../utils/format';
@@ -67,8 +67,14 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     [currency],
   );
 
+  // Stable value so consumers don't re-render on unrelated provider renders.
+  const value = useMemo(
+    () => ({ currency, setCurrencyByCode, formatAmount, formatValue }),
+    [currency, setCurrencyByCode, formatAmount, formatValue],
+  );
+
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrencyByCode, formatAmount, formatValue }}>
+    <CurrencyContext.Provider value={value}>
       {children}
     </CurrencyContext.Provider>
   );

@@ -2,7 +2,7 @@
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Check, Plus } from 'lucide-react-native';
-import { Colors, Fonts } from '../theme';
+import { Fonts } from '../theme';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCategories } from '../contexts/CategoryContext';
 import { AVAILABLE_CATEGORY_COLORS, AVAILABLE_CATEGORY_ICONS } from '../data/categories';
@@ -13,9 +13,6 @@ import { useToast } from '../components/Toast';
 interface Props {
   visible: boolean;
   type?: TxType;
-  initialAmount?: number;
-  initialCategory?: string;
-  initialNote?: string;
   onClose: () => void;
   onSave: (type: TxType, amount: number, category: string, note: string) => void;
 }
@@ -30,9 +27,6 @@ const sanitizeAmount = (t: string) => {
 export default function AddTransactionModal({
   visible,
   type: initialType = 'income',
-  initialAmount,
-  initialCategory,
-  initialNote,
   onClose,
   onSave,
 }: Props) {
@@ -57,18 +51,14 @@ export default function AddTransactionModal({
   useEffect(() => {
     if (visible) {
       setActiveType(initialType);
-      setAmountText(initialAmount ? String(initialAmount) : '');
-      setNote(initialNote ?? '');
+      setAmountText('');
+      setNote('');
       setShowAddCategory(false);
       setNewCatName('');
       const activeChips = initialType === 'income' ? incomeCategories : expenseCategories;
-      setCategory(
-        initialCategory && activeChips.some((c) => c.name === initialCategory)
-          ? initialCategory
-          : activeChips[0]?.name ?? 'Other',
-      );
+      setCategory(activeChips[0]?.name ?? 'Other');
     }
-  }, [visible, initialType, initialAmount, initialCategory, initialNote, incomeCategories, expenseCategories]);
+  }, [visible, initialType, incomeCategories, expenseCategories]);
 
   // When switching type between income/expense
   const handleTypeSwitch = (type: TxType) => {

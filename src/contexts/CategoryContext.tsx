@@ -93,7 +93,6 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
         name: c.name,
         icon: getCategoryIcon(c.iconName),
         color: c.color,
-        tile: `${c.color}22`,
       }));
     return [...EXPENSE_CATEGORIES.filter((c) => c.name !== 'Other'), ...customs, EXPENSE_CATEGORIES.find((c) => c.name === 'Other')!];
   }, [customCategories]);
@@ -105,7 +104,6 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
         name: c.name,
         icon: getCategoryIcon(c.iconName),
         color: c.color,
-        tile: `${c.color}22`,
       }));
     return [...INCOME_SOURCES.filter((c) => c.name !== 'Other'), ...customs, INCOME_SOURCES.find((c) => c.name === 'Other')!];
   }, [customCategories]);
@@ -117,18 +115,30 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
     [customCategories],
   );
 
+  // Stable value so consumers don't re-render on unrelated provider renders.
+  const value = useMemo(
+    () => ({
+      customCategories,
+      expenseCategories,
+      incomeCategories,
+      getCategory,
+      addCustomCategory,
+      deleteCustomCategory,
+      setCustomCategoriesList,
+    }),
+    [
+      customCategories,
+      expenseCategories,
+      incomeCategories,
+      getCategory,
+      addCustomCategory,
+      deleteCustomCategory,
+      setCustomCategoriesList,
+    ],
+  );
+
   return (
-    <CategoryContext.Provider
-      value={{
-        customCategories,
-        expenseCategories,
-        incomeCategories,
-        getCategory,
-        addCustomCategory,
-        deleteCustomCategory,
-        setCustomCategoriesList,
-      }}
-    >
+    <CategoryContext.Provider value={value}>
       {children}
     </CategoryContext.Provider>
   );

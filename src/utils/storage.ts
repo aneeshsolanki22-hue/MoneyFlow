@@ -71,7 +71,7 @@ export async function saveBackup(state: BackupState): Promise<void> {
   }
 }
 
-export async function loadSavedTheme(): Promise<'light' | 'dark' | null> {
+export async function loadTheme(): Promise<'light' | 'dark' | null> {
   try {
     const raw = await AsyncStorage.getItem(KEYS.theme);
     return raw === 'light' || raw === 'dark' ? raw : null;
@@ -79,7 +79,6 @@ export async function loadSavedTheme(): Promise<'light' | 'dark' | null> {
     return null;
   }
 }
-export const loadTheme = loadSavedTheme;
 
 export async function saveTheme(theme: 'light' | 'dark'): Promise<void> {
   try {
@@ -110,14 +109,13 @@ export async function saveGradient(variant: 'ocean' | 'ember' | 'lagoon' | 'expr
   }
 }
 
-export async function loadSavedCurrency(): Promise<string | null> {
+export async function loadCurrency(): Promise<string | null> {
   try {
     return await AsyncStorage.getItem(KEYS.currency);
   } catch {
     return null;
   }
 }
-export const loadCurrency = loadSavedCurrency;
 
 export async function saveCurrency(code: string): Promise<void> {
   try {

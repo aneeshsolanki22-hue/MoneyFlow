@@ -19,12 +19,18 @@ import {
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors, Fonts, HOME_GRADIENTS } from '../theme';
+import { Fonts, HOME_GRADIENTS } from '../theme';
 import { useTheme } from '../contexts/ThemeContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useCategories } from '../contexts/CategoryContext';
 import type { BackupState, Transaction, TxType, UserProfile } from '../types';
-import { formatDayHeader, genId, monthKey } from '../utils/format';
+import {
+  formatDayHeader,
+  genId,
+  monthDate,
+  MONTH_NAMES_FULL,
+  monthKey,
+} from '../utils/format';
 import {
   loadBackup,
   loadTransactions,
@@ -45,13 +51,10 @@ interface Props {
   initialGoogleToken?: string | null;
 }
 
-const MONTH_NAMES_FULL = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-];
-
 /** Stable separator — defined outside component so identity never changes. */
 const ListSeparator = () => <View style={{ height: 8 }} />;
+
+const keyExtractor = (item: Transaction) => item.id;
 
 export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
   const insets = useSafeAreaInsets();
@@ -105,9 +108,25 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
     })();
   }, []);
 
+  // Debounce storage writes so rapid add/delete/undo sequences batch into one
+  // write instead of one per keystroke-like state change.
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    if (ready) saveTransactions(transactions);
+    if (!ready) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => saveTransactions(transactions), 400);
   }, [transactions, ready]);
+
+  // Flush any pending debounced write when the screen unmounts, so the very
+  // last change is never lost.
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        saveTransactions(transactionsRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -124,10 +143,7 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
     return () => sub.remove();
   }, [modal, currentTab]);
 
-  const currentMonthDate = useMemo(() => {
-    const [yearStr, monthStr] = selectedMonth.split('-');
-    return new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, 1);
-  }, [selectedMonth]);
+  const currentMonthDate = useMemo(() => monthDate(selectedMonth), [selectedMonth]);
 
   const monthDisplayText = useMemo(() => {
     return `${MONTH_NAMES_FULL[currentMonthDate.getMonth()]} ${currentMonthDate.getFullYear()}`;
@@ -240,6 +256,74 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
       }
     },
     [toast, undoDelete],
+  );
+
+  const closeRevealOnScroll = useCallback(() => setOpenTxId(null), []);
+
+  // Stable render props so the SectionList (a PureComponent) skips re-renders
+  // when unrelated HomeScreen state changes (modal open/close, tab switches).
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: { title: string } }) => (
+      <Text
+        style={[
+          styles.dateGroupHeader,
+          isDark && { color: 'rgba(255, 255, 255, 0.5)' },
+        ]}
+      >
+        {section.title}
+      </Text>
+    ),
+    [isDark],
+  );
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: Transaction; index: number }) => (
+      <TransactionRow
+        tx={item}
+        index={index}
+        animateIn={!listAnimated}
+        open={openTxId === item.id}
+        deleting={deletingTxId === item.id}
+        onToggle={toggleTxReveal}
+        onDelete={handleDeleteTx}
+        onDeleted={handleTxDeleted}
+        colors={colors}
+      />
+    ),
+    [
+      listAnimated,
+      openTxId,
+      deletingTxId,
+      toggleTxReveal,
+      handleDeleteTx,
+      handleTxDeleted,
+      colors,
+    ],
+  );
+
+  const renderEmpty = useCallback(
+    () => (
+      <View style={styles.empty}>
+        <View style={styles.emptyTile}>
+          <Wallet size={26} color={isDark ? '#FFFFFF' : '#0B0B12'} strokeWidth={1.8} />
+        </View>
+        <Text style={[styles.emptyTitle, isDark && { color: '#FFFFFF' }]}>
+          {monthly.length === 0 && transactions.length > 0
+            ? filter === 'income'
+              ? `No income in ${monthDisplayText}`
+              : filter === 'expense'
+                ? `No expenses in ${monthDisplayText}`
+                : `No transactions in ${monthDisplayText}`
+            : 'No transactions yet'}
+        </Text>
+        <Text style={[styles.emptySub, isDark && { color: 'rgba(255, 255, 255, 0.6)' }]}>
+          {filter !== 'all'
+            ? 'Tap the filter pill again to clear.'
+            : 'Tap the + button below to add your first entry.'}
+        </Text>
+      </View>
+    ),
+    [isDark, monthly.length, transactions.length, filter, monthDisplayText],
   );
 
   const handleAdd = useCallback(
@@ -469,34 +553,13 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
             <SectionList
               sections={sections}
               style={styles.listFullBleed}
-              keyExtractor={(item) => item.id}
+              keyExtractor={keyExtractor}
               initialNumToRender={10}
               maxToRenderPerBatch={12}
               removeClippedSubviews={Platform.OS === 'android'}
-              onScrollBeginDrag={() => setOpenTxId(null)}
-              renderSectionHeader={({ section }) => (
-                <Text
-                  style={[
-                    styles.dateGroupHeader,
-                    isDark && { color: 'rgba(255, 255, 255, 0.5)' },
-                  ]}
-                >
-                  {section.title}
-                </Text>
-              )}
-              renderItem={({ item, index }) => (
-                <TransactionRow
-                  tx={item}
-                  index={index}
-                  animateIn={!listAnimated}
-                  open={openTxId === item.id}
-                  deleting={deletingTxId === item.id}
-                  onToggle={toggleTxReveal}
-                  onDelete={handleDeleteTx}
-                  onDeleted={handleTxDeleted}
-                  colors={colors}
-                />
-              )}
+              onScrollBeginDrag={closeRevealOnScroll}
+              renderSectionHeader={renderSectionHeader}
+              renderItem={renderItem}
               ItemSeparatorComponent={ListSeparator}
               stickySectionHeadersEnabled={false}
               showsVerticalScrollIndicator={false}
@@ -504,27 +567,7 @@ export default function HomeScreen({ user, initialGoogleToken = null }: Props) {
                 styles.listContent,
                 { paddingBottom: 110 + Math.max(insets.bottom, 16) },
               ]}
-              ListEmptyComponent={
-                <View style={styles.empty}>
-                  <View style={styles.emptyTile}>
-                    <Wallet size={26} color={isDark ? '#FFFFFF' : '#0B0B12'} strokeWidth={1.8} />
-                  </View>
-                  <Text style={[styles.emptyTitle, isDark && { color: '#FFFFFF' }]}>
-                    {monthly.length === 0 && transactions.length > 0
-                      ? filter === 'income'
-                        ? `No income in ${monthDisplayText}`
-                        : filter === 'expense'
-                          ? `No expenses in ${monthDisplayText}`
-                          : `No transactions in ${monthDisplayText}`
-                      : 'No transactions yet'}
-                  </Text>
-                  <Text style={[styles.emptySub, isDark && { color: 'rgba(255, 255, 255, 0.6)' }]}>
-                    {filter !== 'all'
-                      ? 'Tap the filter pill again to clear.'
-                      : 'Tap the + button below to add your first entry.'}
-                  </Text>
-                </View>
-              }
+              ListEmptyComponent={renderEmpty}
             />
           </View>
         </View>
@@ -701,28 +744,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: Fonts.bodyMedium,
   },
-  viewAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(0, 0, 0, 0.06)',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.08)',
-  },
-  viewAllBtnActive: {
-    backgroundColor: '#0B0B12',
-  },
-  viewAllText: {
-    color: '#0B0B12',
-    fontSize: 12,
-    fontFamily: Fonts.displaySemi,
-  },
-  viewAllTextActive: {
-    color: '#FFFFFF',
-  },
   listContent: {
     paddingTop: 4,
   },
@@ -743,9 +764,6 @@ const styles = StyleSheet.create({
   // edge on web.
   listFullBleed: {
     marginHorizontal: -20,
-  },
-  separator: {
-    height: 8,
   },
   empty: {
     alignItems: 'center',

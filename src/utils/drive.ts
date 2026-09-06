@@ -1,4 +1,8 @@
 import Constants from 'expo-constants';
+import {
+  GoogleSignin,
+  isSuccessResponse,
+} from '@react-native-google-signin/google-signin';
 import type { CustomCategory, Transaction, UserProfile } from '../types';
 
 /** Least-privilege scope: the app can only see files it created. */
@@ -30,6 +34,29 @@ export function getGoogleClientIds(): GoogleClientIds {
   return {
     androidClientId: (ids.androidClientId as string) || '',
     webClientId: (ids.webClientId as string) || '',
+  };
+}
+
+/**
+ * Interactive Google sign-in used by onboarding and settings.
+ * Returns the access token + email, or null when the user cancels.
+ * Throws on failure so callers keep their own error toasts.
+ */
+export async function signInWithGoogle(): Promise<{ token: string; email: string } | null> {
+  const { webClientId, androidClientId } = getGoogleClientIds();
+  await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+  GoogleSignin.configure({
+    webClientId,
+    ...(androidClientId ? { androidClientId } : {}),
+    scopes: ['profile', 'email', DRIVE_SCOPE],
+  });
+  const result = await GoogleSignin.signIn();
+  if (!isSuccessResponse(result)) return null; // user cancelled
+  const tokens = await GoogleSignin.getTokens();
+  if (!tokens.accessToken) throw new Error('No access token returned');
+  return {
+    token: tokens.accessToken,
+    email: result.data.user.email || 'Google account',
   };
 }
 
@@ -122,14 +149,3 @@ export async function downloadBackup(token: string): Promise<BackupPayload | nul
   return payload;
 }
 
-/** Fetch the signed-in user's profile so we can show their email. */
-export async function fetchGoogleProfile(
-  token: string,
-): Promise<{ email: string; name: string }> {
-  const res = await fetch(`${API}/oauth2/v2/userinfo`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error(`Could not load profile (${res.status})`);
-  const data = (await res.json()) as { email?: string; name?: string };
-  return { email: data.email ?? '', name: data.name ?? '' };
-}

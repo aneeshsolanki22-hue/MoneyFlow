@@ -5,7 +5,6 @@ import {
   Pressable,
   StyleSheet,
   View,
-  type ViewStyle,
 } from 'react-native';
 import Animated, {
   interpolate,
@@ -21,7 +20,6 @@ interface AnimatedModalProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  containerStyle?: ViewStyle;
 }
 
 /**
@@ -32,7 +30,6 @@ export default function AnimatedModal({
   visible,
   onClose,
   children,
-  containerStyle,
 }: AnimatedModalProps) {
   const insets = useSafeAreaInsets();
   const [mounted, setMounted] = useState(visible);
@@ -106,7 +103,6 @@ export default function AnimatedModal({
           style={[
             styles.popupCard,
             popupAnimatedStyle,
-            containerStyle,
           ]}
         >
           {children}

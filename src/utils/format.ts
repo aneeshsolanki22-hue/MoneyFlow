@@ -17,11 +17,6 @@ export function formatCurrency(
   return `${prefix}${symbol}${numStr}`;
 }
 
-/** Format an amount with the rupee symbol, optionally signed. e.g. -450 -> "-₹450" */
-export function formatINR(value: number, opts: { sign?: boolean } = {}): string {
-  return formatCurrency(value, '₹', opts);
-}
-
 /** 12:30 PM style time. */
 export function formatTime(ts: number): string {
   const d = new Date(ts);
@@ -55,14 +50,15 @@ export function monthKey(ts: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-export function formatLastBackup(ts: number | null): string {
-  if (!ts) return 'Never';
-  return new Date(ts).toLocaleString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+export const MONTH_NAMES_FULL = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
+/** 'YYYY-MM' key → Date for the 1st of that month. */
+export function monthDate(key: string): Date {
+  const [yearStr, monthStr] = key.split('-');
+  return new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, 1);
 }
 
 export function genId(): string {

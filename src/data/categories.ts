@@ -43,7 +43,6 @@ export interface CategoryDef {
   name: string;
   icon: IconType;
   color: string;
-  tile: string;
 }
 
 export const AVAILABLE_CATEGORY_ICONS: { name: string; icon: IconType }[] = [
@@ -89,22 +88,22 @@ export const AVAILABLE_CATEGORY_COLORS = [
 ];
 
 export const EXPENSE_CATEGORIES: CategoryDef[] = [
-  { name: 'Food', icon: Utensils, color: '#FB923C', tile: '#FB923C22' },
-  { name: 'Groceries', icon: ShoppingBasket, color: '#34D399', tile: '#34D39922' },
-  { name: 'Transport', icon: Bus, color: '#A78BFA', tile: '#A78BFA22' },
-  { name: 'Utilities', icon: Zap, color: '#38BDF8', tile: '#38BDF822' },
-  { name: 'Bills', icon: Receipt, color: '#F87171', tile: '#F8717122' },
-  { name: 'Other', icon: MoreHorizontal, color: '#9CA3AF', tile: '#9CA3AF22' },
+  { name: 'Food', icon: Utensils, color: '#FB923C' },
+  { name: 'Groceries', icon: ShoppingBasket, color: '#34D399' },
+  { name: 'Transport', icon: Bus, color: '#A78BFA' },
+  { name: 'Utilities', icon: Zap, color: '#38BDF8' },
+  { name: 'Bills', icon: Receipt, color: '#F87171' },
+  { name: 'Other', icon: MoreHorizontal, color: '#9CA3AF' },
 ];
 
 export const INCOME_SOURCES: CategoryDef[] = [
-  { name: 'Salary', icon: Wallet, color: '#4ADE80', tile: '#4ADE8022' },
-  { name: 'Freelance', icon: Laptop, color: '#38BDF8', tile: '#38BDF822' },
-  { name: 'Gift', icon: Gift, color: '#F472B6', tile: '#F472B622' },
-  { name: 'Investment', icon: TrendingUp, color: '#A78BFA', tile: '#A78BFA22' },
-  { name: 'Income', icon: Banknote, color: '#34D399', tile: '#34D39922' },
-  { name: 'Payment', icon: CreditCard, color: '#6366F1', tile: '#6366F122' },
-  { name: 'Other', icon: MoreHorizontal, color: '#9CA3AF', tile: '#9CA3AF22' },
+  { name: 'Salary', icon: Wallet, color: '#4ADE80' },
+  { name: 'Freelance', icon: Laptop, color: '#38BDF8' },
+  { name: 'Gift', icon: Gift, color: '#F472B6' },
+  { name: 'Investment', icon: TrendingUp, color: '#A78BFA' },
+  { name: 'Income', icon: Banknote, color: '#34D399' },
+  { name: 'Payment', icon: CreditCard, color: '#6366F1' },
+  { name: 'Other', icon: MoreHorizontal, color: '#9CA3AF' },
 ];
 
 export function getCategoryIcon(iconName: string): IconType {
@@ -124,7 +123,6 @@ export function getCategory(
       name: custom.name,
       icon: getCategoryIcon(custom.iconName),
       color: custom.color,
-      tile: `${custom.color}22`,
     };
   }
 

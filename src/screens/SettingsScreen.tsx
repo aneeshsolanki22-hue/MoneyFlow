@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import * as Updates from 'expo-updates';
 import {
   ActivityIndicator,
@@ -8,17 +8,13 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   Vibration,
   View,
 } from 'react-native';
 
-const appLogo = require('../../assets/logo.png');
-import {
-  GoogleSignin,
-  isSuccessResponse,
-} from '@react-native-google-signin/google-signin';
+const appLogo = require('../../assets/icon.png');
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import {
   Check,
   ChevronRight,
@@ -40,7 +36,7 @@ import type { GradientVariant } from '../types';
 import { CURRENCIES, useCurrency } from '../contexts/CurrencyContext';
 import { useCategories } from '../contexts/CategoryContext';
 import type { BackupState } from '../types';
-import { DRIVE_SCOPE, getGoogleClientIds } from '../utils/drive';
+import { getGoogleClientIds, signInWithGoogle } from '../utils/drive';
 import { useToast } from '../components/Toast';
 
 interface Props {
@@ -52,7 +48,7 @@ interface Props {
   onRestore: () => Promise<void>;
 }
 
-export default function SettingsScreen({
+function SettingsScreen({
   backup,
   connected,
   onSignedIn,
@@ -66,7 +62,7 @@ export default function SettingsScreen({
   const { currency, setCurrencyByCode } = useCurrency();
   const { customCategories, deleteCustomCategory } = useCategories();
 
-  const { webClientId, androidClientId } = getGoogleClientIds();
+  const { webClientId } = getGoogleClientIds();
   const configured = webClientId.length > 0;
 
   const [loadingGoogle, setLoadingGoogle] = useState(false);
@@ -135,18 +131,9 @@ export default function SettingsScreen({
 
     setLoadingGoogle(true);
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      GoogleSignin.configure({
-        webClientId,
-        ...(androidClientId ? { androidClientId } : {}),
-        scopes: ['profile', 'email', DRIVE_SCOPE],
-      });
-      const result = await GoogleSignin.signIn();
-      if (!isSuccessResponse(result)) return;
-      const tokens = await GoogleSignin.getTokens();
-      if (!tokens.accessToken) throw new Error('No access token returned');
-      const email = result.data.user.email || 'Google account';
-      onSignedIn(tokens.accessToken, email);
+      const cred = await signInWithGoogle();
+      if (!cred) return; // user cancelled
+      onSignedIn(cred.token, cred.email);
     } catch (err) {
       const code = (err as { code?: string | number } | undefined)?.code;
       const message = (err as { message?: string } | undefined)?.message;
@@ -160,7 +147,7 @@ export default function SettingsScreen({
     } finally {
       setLoadingGoogle(false);
     }
-  }, [connected, configured, webClientId, androidClientId, onSignedIn, onSignedOut, toast]);
+  }, [connected, configured, onSignedIn, onSignedOut, toast]);
 
   const handleBackupPress = async () => {
     if (Platform.OS === 'android') Vibration.vibrate(15);
@@ -509,6 +496,8 @@ export default function SettingsScreen({
     </View>
   );
 }
+
+export default memo(SettingsScreen);
 
 const styles = StyleSheet.create({
   root: {
